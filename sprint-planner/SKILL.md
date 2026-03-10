@@ -3,7 +3,9 @@ name: sprint-planner
 description: >
   Prepare and organize a new sprint for the Team Lead. Gathers inputs,
   ensures sprint exists, creates support bucket, calculates capacity,
-  and outputs a full summary with links.
+  and outputs a full summary with links. Also summarizes sprints —
+  validates estimates/assignees, breaks down by team member, and
+  suggests sprint goals.
 argument-hint: "[sprint name] - e.g. 'Mobile Engine 26S06'"
 ---
 
@@ -113,6 +115,110 @@ After all steps complete, present a single summary:
 - Sprint: {sprint_name} (ID: {id}, state: {state})
 - Active sprint: {active_name} (ends {end_date})
 ```
+
+---
+
+## Summarize Sprint
+
+When the user asks to **summarize a sprint**, follow this flow:
+
+### Phase 1: Identify Sprint
+
+If the sprint name is not provided, find the next upcoming sprint:
+1. Find the board: `jira_get_agile_boards(board_name="Mobile Engine")`
+2. Check future sprints: `jira_get_sprints_from_board(board_id, state="future")`
+3. Check active sprint: `jira_get_sprints_from_board(board_id, state="active")`
+4. Default to the future sprint, or active sprint if no future sprint exists
+
+### Phase 2: Fetch All Sprint Tickets
+
+Use `jira_get_sprint_issues(sprint_id, limit=50)` to get all issues.
+If there are more than 50, paginate with `start_at` until all are retrieved.
+
+For each issue, collect: key, summary, status, assignee, original estimate,
+issue type, and parent/epic.
+
+### Phase 3: Health Check
+
+Flag issues with **missing required fields**. Only list tickets that have problems.
+
+#### Missing Estimates
+List tickets without an `originalEstimate` in `timetracking` (skip Cancelled tickets):
+
+```
+### Missing Estimates
+| Issue | Summary | Assignee | Link |
+|-------|---------|----------|------|
+| {key} | {summary} | {assignee or "Unassigned"} | [link] |
+```
+
+#### Missing Assignees
+List tickets without an assignee (with full detail — these need action):
+
+```
+### Missing Assignees
+| Issue | Summary | Estimate | Link |
+|-------|---------|----------|------|
+| {key} | {summary} | {estimate or "—"} | [link] |
+```
+
+If everything is clean, output: **All tickets have estimates and assignees.**
+
+### Phase 4: Breakdown by Team Member
+
+Show a **stats-only** summary table — no individual ticket lists.
+Group by assignee, show ticket count and total estimate per person.
+Sort by total estimate descending. Convert estimates to days (1w = 5d, 1d = 8h).
+
+```
+### Team Breakdown
+| Person | Tickets | Estimated | Notes |
+|--------|---------|-----------|-------|
+| {name} | {count} | {total}d  | {e.g. "+1 missing estimate", "2 blocked"} |
+| ...    | ...     | ...       |       |
+```
+
+Include an "Unassigned" row if there are unassigned tickets.
+
+### Phase 5: Suggest Sprint Goals
+
+Analyze all ticket summaries, epics, and groupings to suggest **3–5 sprint goals**.
+
+Guidelines for goals:
+- Each goal should represent a meaningful **theme or deliverable**, not individual tickets
+- Group related tickets into a single goal (e.g., multiple OCR tickets → "OCR feature kickoff")
+- Exclude the support bucket from goals — it's overhead, not a goal
+- Prefer action-oriented phrasing: "Ship X", "Complete Y", "Start Z"
+- Order by estimated effort (largest first)
+- **Titles only** — no descriptions or ticket key lists
+
+```
+### Suggested Sprint Goals
+1. {Goal 1}
+2. {Goal 2}
+3. {Goal 3}
+```
+
+### Phase 6: Output
+
+Combine all sections into a single summary:
+
+```
+## Sprint Summary: {sprint_name}
+
+{Health Check section}
+
+{Team Breakdown section}
+
+{Suggested Sprint Goals section}
+
+### Sprint Info
+- Sprint: {sprint_name} (ID: {id}, state: {state})
+- Total tickets: {count}
+- Total estimated: {sum of all estimates}
+```
+
+---
 
 ## Reference
 
