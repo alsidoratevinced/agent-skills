@@ -1,0 +1,33 @@
+{
+  "atlassian_url": "https://YOUR-DOMAIN.atlassian.net",
+  "project_key": "YOUR_PROJECT",
+  "username": "Your Full Name",
+  "default_issue_type": "Task",
+  "default_team": {
+    "name": "Your Default Team",
+    "uuid": "your-team-uuid-from-team-structure-json"
+  },
+  "custom_fields": {
+    "team": "customfield_10001",
+    "epic_link": "customfield_10014",
+    "classification": "customfield_10938"
+  },
+  "classification_options": [
+    { "name": "Product Roadmap", "id": "11183", "description": "Planned product features and strategic initiatives" },
+    { "name": "Support & Maintenance", "id": "11184", "description": "Bug fixes, operational support, maintenance" },
+    { "name": "Technical Debt & Engineering Health", "id": "11185", "description": "Refactoring, performance, infrastructure" }
+  ],
+  "title_tag_to_team": {
+    "[Engine]": "Mobile Engine Team",
+    "[MFA]": "MFA",
+    "[Android]": "Mobile Android Team",
+    "[iOS]": "Mobile iOS Team",
+    "[Appium]": "Mobile Android Team",
+    "[QA]": null,
+    "[Espresso SDK]": "Mobile Android Team",
+    "[XCUI SDK]": "Mobile iOS Team",
+    "[WDIO Mobile SDK]": "MFA"
+  },
+  "org_id": "YOUR_ORG_ID (optional, for fetch-teams.py script)",
+  "site_id": "YOUR_SITE_ID (optional, for fetch-teams.py script)"
+}

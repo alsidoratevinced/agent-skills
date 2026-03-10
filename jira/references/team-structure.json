@@ -1,0 +1,257 @@
+{
+  "last_updated": "2026-02-24",
+  "teams": {
+    "Mobile Engine Team": {
+      "id": "206cd4c7-6cdb-4a6e-aadd-e11958ee265a",
+      "description": "Also known as Rust Team",
+      "members": [
+        { "name": "Asya Frumkin", "account_id": "5ffc2d11dd5eb5010803a930" },
+        { "name": "Mateusz Burdyna", "account_id": "63206011d1b3f6489b930012" },
+        { "name": "Sasha Sidorenko", "account_id": "63c95851cd6a09abe71ef059" },
+        { "name": "Djordje Pesic", "account_id": "64198b91f1b529dfa98d463a" },
+        { "name": "Yoav Lavi", "account_id": "712020:3a326a56-ade6-4cb3-a33b-4388c91dbd9c" },
+        { "name": "Anton Malinin", "account_id": "712020:c144d080-d83a-4a51-9771-65a2b3ca6cbe" },
+        { "name": "oleksandr kholiavko", "account_id": "712020:d4455400-0724-43b6-857b-f5db66e4b18c" }
+      ]
+    },
+    "R&D Management": {
+      "id": "22c47c9b-b0f5-497c-b254-cefce565bf9f",
+      "description": "",
+      "members": [
+        { "name": "Aryeh Kiovetsky", "account_id": "712020:1b26e5be-dbd9-462f-9d6f-60f320c20771" },
+        { "name": "Rotem Arel", "account_id": "712020:3a521285-66d1-4193-b5da-048c87d1a264" },
+        { "name": "Kobi Sharbat", "account_id": "712020:c51a3f56-f864-440f-b8d3-5c20d7532db5" },
+        { "name": "Chen Dar", "account_id": "712020:eca839f0-c790-4b0f-a15e-b6dbe39dcdb9" },
+        { "name": "Eyal Vosk", "account_id": "712020:f0a74313-9a72-4a84-8748-6cf3d603ab62" }
+      ]
+    },
+    "Semantic-agent-team": {
+      "id": "2adaac7d-22fd-492b-a340-ad66894bf2ae",
+      "description": "",
+      "members": [
+        { "name": "Gal Moav", "account_id": "5bcc4b57dd3cc64b77e70355" },
+        { "name": "Ben Bracha", "account_id": "5bcc4c22cdfb443b578dc391" },
+        { "name": "Kfir Orgil", "account_id": "60aa6b51920950006f4d8ad1" },
+        { "name": "Evyatar Or", "account_id": "62652b1252310b0068fe76da" },
+        { "name": "Yahlly Schein", "account_id": "712020:35a1d5b8-5c44-4dd1-87e8-ecbfda9abdbd" },
+        { "name": "Tair Hakman", "account_id": "712020:636eb54f-7c6b-426f-a0f0-80631f30a7fb" },
+        { "name": "yolanda.robla", "account_id": "712020:8f11594a-8699-463c-bdbf-2cc56a30976a" }
+      ]
+    },
+    "Infra-Gen-AI": {
+      "id": "32c5fb9e-2c95-421d-a81f-f3d240ec85c2",
+      "description": "",
+      "members": [
+        { "name": "Ofir Sharon", "account_id": "606c74d2c040cd0069ce0c39" },
+        { "name": "Oren Raab", "account_id": "712020:0c420453-2b7e-4d70-a4e8-94a4b512bd23" },
+        { "name": "Nadav Oren", "account_id": "712020:15d557bb-aac9-42b9-8709-811cc93224ab" },
+        { "name": "Kostiantyn Nikolaiev", "account_id": "712020:24aa9932-aa17-46c3-9f5b-a541591a2eca" },
+        { "name": "Eden Mironi", "account_id": "712020:2a084a0a-4b0d-4e54-9e6b-58771da744db" },
+        { "name": "Tair Hakman", "account_id": "712020:636eb54f-7c6b-426f-a0f0-80631f30a7fb" },
+        { "name": "Anton Borkivskyi", "account_id": "712020:95f369ca-3abd-499e-9dc7-464a573160de" }
+      ]
+    },
+    "A11y": {
+      "id": "3416da2d-5068-4f79-93c5-fd601ff19b45",
+      "description": "",
+      "members": [
+        { "name": "Illai Zeevi", "account_id": "5bd6ec1ca752ae425d2a2628" },
+        { "name": "Neil Osman", "account_id": "712020:3c9c07a5-5ac9-462d-b3ec-8f539685c618" },
+        { "name": "Abigail Ofer", "account_id": "712020:54310ae4-0aef-403c-b7c4-da34ea2ed54a" },
+        { "name": "John MacDonald", "account_id": "712020:8202befa-cfe2-4775-b0b2-5dd913d23ac9" },
+        { "name": "Chen Dar", "account_id": "712020:eca839f0-c790-4b0f-a15e-b6dbe39dcdb9" },
+        { "name": "Quintin Balsdon", "account_id": "712020:f9d5bc2a-97bd-4857-b994-bcb03bde536b" }
+      ]
+    },
+    "Technical Support": {
+      "id": "3995da08-3e70-4fc4-8f90-5175f54e729f",
+      "description": "",
+      "members": [
+        { "name": "Aviv Ziv", "account_id": "712020:985888a8-f2b8-4be0-8c07-56e260f80d1d" },
+        { "name": "Lia Soffer", "account_id": "712020:bf3ae5dc-cfef-4335-8375-c15be784fcf2" }
+      ]
+    },
+    "Mobile iOS Team": {
+      "id": "3bc7088d-6cd8-47be-bf97-bc0c47da0a5b",
+      "description": "",
+      "members": [
+        { "name": "Illia Kharebashvili", "account_id": "62423b51ad6b7e006aa37e5a" },
+        { "name": "Anton Yereshchenko", "account_id": "712020:35a89560-6488-449c-8126-ec339aa3b18c" },
+        { "name": "Ihor Kravchenko", "account_id": "712020:b61f09af-0cc0-4af2-a378-a8c828ee1b1d" },
+        { "name": "Rebecca Biaz", "account_id": "712020:dd6c3c27-316c-4246-abb6-7cffe63bc125" },
+        { "name": "Chen Dar", "account_id": "712020:eca839f0-c790-4b0f-a15e-b6dbe39dcdb9" },
+        { "name": "Hen Shabat", "account_id": "712020:f12608cc-4793-423d-a8b6-12bedc69b518" }
+      ]
+    },
+    "MobileTechLeads": {
+      "id": "41ea572c-0a6a-4528-970b-23eaf3519bee",
+      "description": "",
+      "members": [
+        { "name": "Alexandr Lambov", "account_id": "5fd11c111051d100757d6058" },
+        { "name": "Asaf Chetrit", "account_id": "6318af519794410874c76eee" },
+        { "name": "Alexandr Sushkov", "account_id": "712020:5c64d9d1-abae-4598-b2d0-751db04ae49e" },
+        { "name": "Chen Dar", "account_id": "712020:eca839f0-c790-4b0f-a15e-b6dbe39dcdb9" }
+      ]
+    },
+    "WebValidations": {
+      "id": "4befea4e-e2bc-42bd-ab3f-886593d5e2c8",
+      "description": "",
+      "members": [
+        { "name": "Dana Babo", "account_id": "62dd5bd1831f463d28e82a6c" },
+        { "name": "Yuval Heffetz", "account_id": "63ac57517cde7bff9d78b194" },
+        { "name": "Eden Mironi", "account_id": "712020:2a084a0a-4b0d-4e54-9e6b-58771da744db" },
+        { "name": "Saimon Lankri", "account_id": "712020:428df98f-9784-460a-a23b-2efe04e84c70" }
+      ]
+    },
+    "AppScanner SDK Squad": {
+      "id": "5024e808-08e4-4051-995d-85a67f767b36",
+      "description": "",
+      "members": [
+        { "name": "Mateusz Burdyna", "account_id": "63206011d1b3f6489b930012" },
+        { "name": "Vladislav Korchagin", "account_id": "63c6b5520036340dcb5ca1a0" },
+        { "name": "Andrii Voropai", "account_id": "63cfefd15a23f7e717cdc03f" },
+        { "name": "Gil Becker", "account_id": "712020:2ae8221f-0ef8-471e-96d2-98fd1035a940" },
+        { "name": "Chen Dar", "account_id": "712020:eca839f0-c790-4b0f-a15e-b6dbe39dcdb9" }
+      ]
+    },
+    "Backend QA": {
+      "id": "551bd2b5-25ce-4246-a92a-0c4cbf979008",
+      "description": "",
+      "members": [
+        { "name": "Dominik Makuch", "account_id": "628658d282e85d0068f4e799" },
+        { "name": "Eyal Vosk", "account_id": "712020:f0a74313-9a72-4a84-8748-6cf3d603ab62" }
+      ]
+    },
+    "Frontend-1": {
+      "id": "5a23ea60-aa20-4a59-a04c-016473786300",
+      "description": "",
+      "members": [
+        { "name": "Asaf Shochet", "account_id": "5e2dad53bd1e480ca327f2e9" },
+        { "name": "Eitan Noy", "account_id": "61ba3891599f18006a4c7f3a" },
+        { "name": "Itay Sorin", "account_id": "62bdb7d2fbc1f7c647b95b24" },
+        { "name": "Jeny Feldman", "account_id": "630b80518d88ec800fbdc82f" },
+        { "name": "Oren Shlomi", "account_id": "631ed651051efc6985666d30" },
+        { "name": "Dawid Szablowski", "account_id": "63c6b551d7f68827e6b5a12a" },
+        { "name": "Oleksandr Hashkov", "account_id": "712020:2206ea22-aff5-4776-9f73-a7056e20d699" },
+        { "name": "Dan Menkes", "account_id": "712020:37dc4cd6-cc28-4d8f-bf0c-eb4d6e1c67aa" },
+        { "name": "Aram Hovsepyan", "account_id": "712020:3d151258-f99b-421d-a892-b57f5c4cb5b2" },
+        { "name": "Ihor Klymchuk", "account_id": "712020:78b5bf6b-0137-420e-8234-c803cd2d1768" },
+        { "name": "Yaryna Mashta", "account_id": "712020:fbc345ac-93d3-4406-9ba8-4f21b1b6d392" }
+      ]
+    },
+    "DevOps": {
+      "id": "631ebb44-e9e0-48a7-ab07-8825fc5200f6",
+      "description": "",
+      "members": [
+        { "name": "Volodymyr Tymchyshyn", "account_id": "712020:5717347c-ec28-48bc-8b80-b354ebf583fb" },
+        { "name": "Danny Kaplun", "account_id": "712020:87907e15-2252-4f7a-a16d-1bbc4e66dc64" },
+        { "name": "Tal Avigad", "account_id": "712020:aa17a59e-fe62-4e7b-87f6-a2ae97885372" },
+        { "name": "Guram Sigua", "account_id": "712020:bfaa804c-91be-4c67-a4c1-ca174a913fce" }
+      ]
+    },
+    "Auditor-2.0": {
+      "id": "68af9c80-0c54-43a7-8069-2a37a5924cd6",
+      "description": "",
+      "members": [
+        { "name": "Ben Bracha", "account_id": "5bcc4c22cdfb443b578dc391" },
+        { "name": "Oren Shlomi", "account_id": "631ed651051efc6985666d30" },
+        { "name": "Viktoriia Streltsova", "account_id": "6335b053409249995eea8a56" },
+        { "name": "Eden Mironi", "account_id": "712020:2a084a0a-4b0d-4e54-9e6b-58771da744db" },
+        { "name": "Chen Dar", "account_id": "712020:eca839f0-c790-4b0f-a15e-b6dbe39dcdb9" },
+        { "name": "Yaryna Mashta", "account_id": "712020:fbc345ac-93d3-4406-9ba8-4f21b1b6d392" }
+      ]
+    },
+    "Mobile Android Team": {
+      "id": "69b2cd78-b4c3-4bf9-922b-af2bd183f4ab",
+      "description": "",
+      "members": [
+        { "name": "Andriy Kahanets", "account_id": "613b70517eb35f0069563893" },
+        { "name": "Andrey Pelipets", "account_id": "62aad2514639000068d4c5b5" },
+        { "name": "Andrii Voropai", "account_id": "63cfefd15a23f7e717cdc03f" },
+        { "name": "Gil Becker", "account_id": "712020:2ae8221f-0ef8-471e-96d2-98fd1035a940" },
+        { "name": "Alexandr Sushkov", "account_id": "712020:5c64d9d1-abae-4598-b2d0-751db04ae49e" }
+      ]
+    },
+    "Platform": {
+      "id": "6ad8895c-94c3-414f-a5bd-6cfc04ec5ef0",
+      "description": "",
+      "members": [
+        { "name": "Jan Rogalo", "account_id": "712020:90a3f492-781c-42fe-aa5a-f19013ec4062" },
+        { "name": "John Kapolos", "account_id": "712020:9f0d4954-c8d3-423e-809e-d6187dcf6c81" },
+        { "name": "Marian Sichitiu", "account_id": "712020:bbad6804-2629-4ca2-ba22-77405e147e46" },
+        { "name": "Ilya Faynberg", "account_id": "712020:d8c278d3-afc2-4355-a706-8b8da28db9b7" },
+        { "name": "Narek Chomoyan", "account_id": "712020:e31dc406-ef46-46e2-ad6d-9ddac47aff76" },
+        { "name": "Chen Dar", "account_id": "712020:eca839f0-c790-4b0f-a15e-b6dbe39dcdb9" },
+        { "name": "Eliran Swisa", "account_id": "712020:ff14e2c0-8eda-4d9e-9b92-6403764962eb" }
+      ]
+    },
+    "Infra-Web-Core": {
+      "id": "6bc18900-07a8-4ad2-b60c-2aa06f57cbee",
+      "description": "",
+      "members": [
+        { "name": "David Ichilov", "account_id": "630e5b913310c2492b5a037f" },
+        { "name": "Vladyslav Gostev", "account_id": "712020:083d0088-b886-4ec6-90a4-f2415c68e2a1" },
+        { "name": "Saimon Lankri", "account_id": "712020:428df98f-9784-460a-a23b-2efe04e84c70" },
+        { "name": "Itzik Basson", "account_id": "712020:c6c2e758-6fd5-4360-aff4-383cd8e32655" },
+        { "name": "Tova Bernstein", "account_id": "712020:d25daf99-ac2a-4232-aba8-007b6f943c4a" }
+      ]
+    },
+    "Infra-Web-SDKs": {
+      "id": "8dbb9450-df48-4632-81e3-599dfb3bb636",
+      "description": "",
+      "members": [
+        { "name": "Yoel Aharoni", "account_id": "712020:33ce3e02-d788-4237-acd5-a94a96599beb" },
+        { "name": "Dmytro Vodianyk", "account_id": "712020:51396d86-d9f6-4b39-a830-8cd96b333956" },
+        { "name": "Nathan Almaleh", "account_id": "712020:ba8c13dd-0527-4fb7-9e25-0b996af98dc1" },
+        { "name": "Roi Buzaglo", "account_id": "712020:ca487f69-fb98-419f-a6f1-91c3676f4f2c" },
+        { "name": "Evghenii Eni", "account_id": "712020:d33a6e30-37b2-4b2b-8c4b-ed03a6df2448" },
+        { "name": "Lukasz Chlebek", "account_id": "712020:da51e86f-ddf1-42b4-9b92-a1a7d6f83b2d" }
+      ]
+    },
+    "Analysis tech": {
+      "id": "ac548ccd-9a98-440c-a963-a69ed5264ca0",
+      "description": "",
+      "members": [
+        { "name": "Daniel Goren", "account_id": "62652b1134b9b70068795fe7" },
+        { "name": "Shahar Fleishman", "account_id": "63c958520385ff0c6546dbd0" },
+        { "name": "Michael Ran", "account_id": "712020:11c5c86b-6f13-451e-bbfa-d8875de6707b" }
+      ]
+    },
+    "Infra-ML Detection": {
+      "id": "b1e15013-8f89-4dc7-a83c-01da4d9e5f7c",
+      "description": "",
+      "members": [
+        { "name": "Yuval Heffetz", "account_id": "63ac57517cde7bff9d78b194" },
+        { "name": "Shahar Fleishman", "account_id": "63c958520385ff0c6546dbd0" },
+        { "name": "Chen Dar", "account_id": "712020:eca839f0-c790-4b0f-a15e-b6dbe39dcdb9" }
+      ]
+    },
+    "Research": {
+      "id": "be541dd6-a9f4-421a-83ef-8d4fee0208af",
+      "description": "",
+      "members": [
+        { "name": "Asya Frumkin", "account_id": "5ffc2d11dd5eb5010803a930" },
+        { "name": "Kfir Orgil", "account_id": "60aa6b51920950006f4d8ad1" },
+        { "name": "Daniel Goren", "account_id": "62652b1134b9b70068795fe7" },
+        { "name": "Evyatar Or", "account_id": "62652b1252310b0068fe76da" },
+        { "name": "Dana Babo", "account_id": "62dd5bd1831f463d28e82a6c" },
+        { "name": "Yossi Synett", "account_id": "62f00913da8620d53393f1d1" },
+        { "name": "Yuval Heffetz", "account_id": "63ac57517cde7bff9d78b194" },
+        { "name": "Shahar Fleishman", "account_id": "63c958520385ff0c6546dbd0" },
+        { "name": "Eden Mironi", "account_id": "712020:2a084a0a-4b0d-4e54-9e6b-58771da744db" }
+      ]
+    },
+    "MFA": {
+      "id": "c94f2fb1-599b-4081-837c-92869ae2a192",
+      "description": "",
+      "members": [
+        { "name": "Elvira Safina", "account_id": "5fccb7114d2179006e7dc229" },
+        { "name": "Dmitrii Shatrov", "account_id": "60dc84517d016900702ce77a" },
+        { "name": "Sergey Breus", "account_id": "62423b52f6a26900695b7dd8" },
+        { "name": "Iurii Vatazhyshyn", "account_id": "62aad252cb3cb700699279e9" },
+        { "name": "Kaniuk Ihor", "account_id": "62cbc7d1afe495359d9d18fc" },
+        { "name": "Piotr Nowacki", "account_id": "641872525534b0bf74413b31" }
+      ]
+    }
+  }
+}
