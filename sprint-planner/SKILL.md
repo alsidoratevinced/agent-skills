@@ -1,11 +1,10 @@
 ---
 name: sprint-planner
 description: >
-  Prepare and organize a new sprint for the Team Lead. Gathers inputs,
-  ensures sprint exists, creates support bucket, calculates capacity,
-  and outputs a full summary with links. Also summarizes sprints —
-  validates estimates/assignees, breaks down by team member, and
-  suggests sprint goals.
+  Sprint lifecycle management for Team Leads. Three flows: (1) Prepare —
+  create sprint, support bucket, capacity calc. (2) Plan — validate
+  estimates/assignees, team breakdown, suggest goals. (3) KPI — post-sprint
+  velocity report with planned vs. unplanned breakdown and completion rates.
 argument-hint: "[sprint name] - e.g. 'Mobile Engine 26S06'"
 ---
 
@@ -13,12 +12,15 @@ argument-hint: "[sprint name] - e.g. 'Mobile Engine 26S06'"
 
 ## Overview
 
-Single interactive flow to prepare a new sprint. The skill collects all inputs
-upfront, executes all steps, and outputs a summary with links and computed numbers.
+Three flows for sprint lifecycle management:
 
-## How to Invoke
+1. **Prepare** — create a new sprint, calculate capacity, set up support bucket
+2. **Plan** — validate sprint readiness (estimates, assignees), team breakdown, suggest goals
+3. **KPI** — post-sprint velocity report with planned vs. unplanned analysis
 
-When the user asks to prepare/plan a sprint, follow this flow:
+## Prepare Sprint
+
+When the user asks to **prepare** or **create** a sprint, follow this flow:
 
 ### Phase 1: Collect Inputs
 
@@ -118,9 +120,9 @@ After all steps complete, present a single summary:
 
 ---
 
-## Summarize Sprint
+## Plan Sprint
 
-When the user asks to **summarize a sprint**, follow this flow:
+When the user asks to **plan a sprint**, follow this flow:
 
 ### Phase 1: Identify Sprint
 
@@ -204,7 +206,7 @@ Guidelines for goals:
 Combine all sections into a single summary:
 
 ```
-## Sprint Summary: {sprint_name}
+## Sprint Plan: {sprint_name}
 
 {Health Check section}
 
@@ -217,6 +219,13 @@ Combine all sections into a single summary:
 - Total tickets: {count}
 - Total estimated: {sum of all estimates}
 ```
+
+---
+
+## Sprint KPI
+
+When the user asks for sprint **KPI**, **velocity**, **report**, or **metrics**,
+follow the detailed flow in [`references/kpi-flow.md`](references/kpi-flow.md).
 
 ---
 
