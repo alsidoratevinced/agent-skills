@@ -3,17 +3,12 @@
 Compute sprint KPI metrics using the Jira GreenHopper Sprint Report API.
 
 Usage:
-    python compute-kpi.py \
-        --board-name "Mobile Engine" \
-        --sprint-name "Mobile Engine 26S05" \
-        --team-size 5 \
-        --vacation-days 2 \
-        --sick-days 0 \
-        --support-pct 20
+    python compute-kpi.py --sprint-name "Mobile Engine 26S05"
+    python compute-kpi.py --sprint-name "Mobile Engine 26S05" --vacation-days 2
+    python compute-kpi.py --sprint-name "Mobile Engine 26S05" --config path/to/config.json
 
-Requires environment variables:
-    JIRA_EMAIL      — Atlassian account email
-    JIRA_API_TOKEN  — API token from https://id.atlassian.com/manage-profile/security/api-tokens
+All team-specific settings (Atlassian URL, board name, credentials, defaults)
+are read from config.json. See config.template.json for the expected format.
 
 Output: Markdown-formatted KPI report to stdout.
 """
@@ -28,40 +23,62 @@ import sys
 import urllib.request
 import urllib.error
 import urllib.parse
+from pathlib import Path
 
 
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-WORKING_DAYS_PER_SPRINT = 9  # 10 weekdays minus 1 for ceremonies
 HOURS_PER_DAY = 8
 SECONDS_PER_HOUR = 3600
-BASE_URL = "https://evinced.atlassian.net"
+
+
+# ---------------------------------------------------------------------------
+# Config
+# ---------------------------------------------------------------------------
+
+def load_config(config_path: str | None) -> dict:
+    """Load config.json from the given path or auto-discover it."""
+    if config_path:
+        path = Path(config_path)
+    else:
+        # Auto-discover: look relative to this script's location
+        script_dir = Path(__file__).resolve().parent
+        path = script_dir.parent / "config.json"
+
+    if not path.exists():
+        print(f"Error: Config file not found at {path}", file=sys.stderr)
+        print("Copy config.template.json to config.json and fill in your values.", file=sys.stderr)
+        sys.exit(1)
+
+    with open(path) as f:
+        return json.load(f)
 
 
 # ---------------------------------------------------------------------------
 # API helpers
 # ---------------------------------------------------------------------------
 
-def get_auth_header() -> str:
-    email = os.environ.get("JIRA_EMAIL")
-    token = os.environ.get("JIRA_API_TOKEN")
+def make_auth_header(config: dict) -> str:
+    """Build Basic Auth header from config credentials."""
+    email = config.get("jira_email") or os.environ.get("JIRA_EMAIL", "")
+    token = config.get("jira_api_token") or os.environ.get("JIRA_API_TOKEN", "")
     if not email or not token:
-        print("Error: JIRA_EMAIL and JIRA_API_TOKEN environment variables are required.", file=sys.stderr)
-        print("Generate a token at https://id.atlassian.com/manage-profile/security/api-tokens", file=sys.stderr)
+        print("Error: Jira credentials not found.", file=sys.stderr)
+        print("Set jira_email/jira_api_token in config.json, or export JIRA_EMAIL/JIRA_API_TOKEN.", file=sys.stderr)
         sys.exit(1)
     credentials = base64.b64encode(f"{email}:{token}".encode()).decode()
     return f"Basic {credentials}"
 
 
-def jira_get(path: str, params: dict | None = None) -> dict:
+def jira_get(base_url: str, auth_header: str, path: str, params: dict | None = None) -> dict:
     """Make an authenticated GET request to the Jira API."""
-    url = f"{BASE_URL}{path}"
+    url = f"{base_url}{path}"
     if params:
         url += "?" + urllib.parse.urlencode(params)
 
     req = urllib.request.Request(url)
-    req.add_header("Authorization", get_auth_header())
+    req.add_header("Authorization", auth_header)
     req.add_header("Accept", "application/json")
 
     try:
@@ -69,16 +86,16 @@ def jira_get(path: str, params: dict | None = None) -> dict:
             return json.loads(resp.read())
     except urllib.error.HTTPError as e:
         if e.code in (401, 403):
-            print(f"Error: Authentication failed (HTTP {e.code}). Check JIRA_EMAIL and JIRA_API_TOKEN.", file=sys.stderr)
+            print(f"Error: Authentication failed (HTTP {e.code}). Check credentials in config.json.", file=sys.stderr)
             sys.exit(1)
         body = e.read().decode() if e.fp else ""
         print(f"Error: HTTP {e.code} from {path}: {body[:500]}", file=sys.stderr)
         sys.exit(1)
 
 
-def resolve_board_id(board_name: str) -> int:
+def resolve_board_id(base_url: str, auth: str, board_name: str) -> int:
     """Find board ID by name using the Jira Agile REST API."""
-    data = jira_get("/rest/agile/1.0/board", {"name": board_name})
+    data = jira_get(base_url, auth, "/rest/agile/1.0/board", {"name": board_name})
     values = data.get("values", [])
     if not values:
         print(f"Error: Board '{board_name}' not found.", file=sys.stderr)
@@ -86,12 +103,12 @@ def resolve_board_id(board_name: str) -> int:
     return values[0]["id"]
 
 
-def resolve_sprint(board_id: int, sprint_name: str) -> dict:
-    """Find a sprint by name on the given board. Returns {id, name, state, start, end}."""
+def resolve_sprint(base_url: str, auth: str, board_id: int, sprint_name: str) -> dict:
+    """Find a sprint by name on the given board."""
     for state in ("closed", "active"):
         start_at = 0
         while True:
-            data = jira_get(f"/rest/agile/1.0/board/{board_id}/sprint", {
+            data = jira_get(base_url, auth, f"/rest/agile/1.0/board/{board_id}/sprint", {
                 "state": state, "startAt": start_at, "maxResults": 50,
             })
             for s in data.get("values", []):
@@ -108,7 +125,7 @@ def resolve_sprint(board_id: int, sprint_name: str) -> dict:
             start_at += 50
 
     # Not found — show recent sprints to help the user
-    recent = jira_get(f"/rest/agile/1.0/board/{board_id}/sprint", {
+    recent = jira_get(base_url, auth, f"/rest/agile/1.0/board/{board_id}/sprint", {
         "state": "closed", "startAt": 0, "maxResults": 5,
     })
     names = [s["name"] for s in recent.get("values", [])]
@@ -118,9 +135,9 @@ def resolve_sprint(board_id: int, sprint_name: str) -> dict:
     sys.exit(1)
 
 
-def fetch_sprint_report(board_id: int, sprint_id: int) -> dict:
+def fetch_sprint_report(base_url: str, auth: str, board_id: int, sprint_id: int) -> dict:
     """Fetch the GreenHopper sprint report (frozen snapshot)."""
-    return jira_get("/rest/greenhopper/1.0/rapid/charts/sprintreport", {
+    return jira_get(base_url, auth, "/rest/greenhopper/1.0/rapid/charts/sprintreport", {
         "rapidViewId": board_id, "sprintId": sprint_id,
     })
 
@@ -234,6 +251,7 @@ def compute_stats(issues: list[dict], completed_keys: set[str]) -> dict:
 # ---------------------------------------------------------------------------
 
 def format_report(
+    base_url: str,
     sprint_name: str,
     sprint_id: int,
     sprint_state: str,
@@ -243,13 +261,14 @@ def format_report(
     vacation_days: int,
     sick_days: int,
     support_pct: int,
+    working_days: int,
     support_bucket: dict | None,
     planned_stats: dict,
     unplanned_stats: dict,
     total_stats: dict,
 ) -> str:
     """Format the KPI report as markdown."""
-    gross = team_size * WORKING_DAYS_PER_SPRINT
+    gross = team_size * working_days
     support_days = round(gross * support_pct / 100, 1)
     net = round(gross - vacation_days - support_days, 1)
 
@@ -261,7 +280,7 @@ def format_report(
         sb_est = seconds_to_days(support_bucket["estimate_seconds"])
         sb_line = (
             f"- {support_bucket['key']}: {support_bucket['summary']} — {sb_est}d "
-            f"([link]({BASE_URL}/browse/{support_bucket['key']}))"
+            f"([link]({base_url}/browse/{support_bucket['key']}))"
         )
     else:
         sb_line = "- No support bucket found"
@@ -305,20 +324,33 @@ def format_report(
 
 def main():
     parser = argparse.ArgumentParser(description="Compute sprint KPI metrics from Jira GreenHopper API")
-    parser.add_argument("--board-name", required=True, help="Board name (e.g. 'Mobile Engine')")
     parser.add_argument("--sprint-name", required=True, help="Sprint name (e.g. 'Mobile Engine 26S05')")
-    parser.add_argument("--team-size", type=int, default=5, help="Number of engineers (default: 5)")
+    parser.add_argument("--config", help="Path to config.json (default: auto-discover)")
+    parser.add_argument("--board-name", help="Override board name from config")
+    parser.add_argument("--team-size", type=int, help="Override team size from config")
     parser.add_argument("--vacation-days", type=int, default=0, help="Total vacation person-days (default: 0)")
     parser.add_argument("--sick-days", type=int, default=0, help="Total sick person-days (default: 0)")
-    parser.add_argument("--support-pct", type=int, default=20, help="Support percentage (default: 20)")
+    parser.add_argument("--support-pct", type=int, help="Override support percentage from config")
     args = parser.parse_args()
 
+    # Load config
+    config = load_config(args.config)
+    defaults = config.get("defaults", {})
+
+    base_url = config["atlassian_url"]
+    board_name = args.board_name or config["board_name"]
+    team_size = args.team_size if args.team_size is not None else defaults.get("team_size", 5)
+    support_pct = args.support_pct if args.support_pct is not None else defaults.get("support_pct", 20)
+    working_days = defaults.get("working_days_per_sprint", 9)
+
+    auth = make_auth_header(config)
+
     # Resolve board and sprint
-    board_id = resolve_board_id(args.board_name)
-    sprint = resolve_sprint(board_id, args.sprint_name)
+    board_id = resolve_board_id(base_url, auth, board_name)
+    sprint = resolve_sprint(base_url, auth, board_id, args.sprint_name)
 
     # Fetch GreenHopper sprint report
-    report_data = fetch_sprint_report(board_id, sprint["id"])
+    report_data = fetch_sprint_report(base_url, auth, board_id, sprint["id"])
     contents = report_data["contents"]
     sprint_info = report_data["sprint"]
 
@@ -351,15 +383,17 @@ def main():
 
     # Output
     output = format_report(
+        base_url=base_url,
         sprint_name=sprint_info.get("name", args.sprint_name),
         sprint_id=sprint["id"],
         sprint_state=sprint_info.get("state", sprint["state"]),
         sprint_start=sprint_info.get("isoStartDate", sprint["start"]),
         sprint_end=sprint_info.get("isoEndDate", sprint["end"]),
-        team_size=args.team_size,
+        team_size=team_size,
         vacation_days=args.vacation_days,
         sick_days=args.sick_days,
-        support_pct=args.support_pct,
+        support_pct=support_pct,
+        working_days=working_days,
         support_bucket=support_bucket,
         planned_stats=planned_stats,
         unplanned_stats=unplanned_stats,

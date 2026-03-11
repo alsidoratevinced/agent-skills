@@ -1,5 +1,5 @@
 ---
-name: sprint-planner
+name: sprint-master
 description: >
   Sprint lifecycle management for Team Leads. Three flows: (1) Prepare —
   create sprint, support bucket, capacity calc. (2) Plan — validate

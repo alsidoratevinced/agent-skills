@@ -8,9 +8,10 @@ Thumbs.db
 *.swp
 *.swo
 
-# Environment
+# Environment & credentials
 .env
 .env.*
+**/config.json
 
 # Claude Code
 .claude/

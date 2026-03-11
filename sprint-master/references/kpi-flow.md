@@ -4,12 +4,8 @@ When the user asks for sprint **KPI**, **velocity**, **report**, or **metrics**,
 
 ## Prerequisites
 
-The script requires `JIRA_EMAIL` and `JIRA_API_TOKEN` environment variables.
-If not set, source them from the skill's `.env` file:
-
-```bash
-set -a && source sprint-planner/.env && set +a
-```
+The script reads credentials and team settings from `sprint-master/config.json`.
+If the file doesn't exist, copy `config.template.json` and fill in your values.
 
 ## Phase 1: Collect Inputs
 
@@ -17,26 +13,26 @@ Ask the user for ALL of the following in a single prompt:
 
 1. **Sprint name** (if not already provided)
    - If omitted, default to the most recently closed sprint, or the active sprint
-2. **Team size** — number of engineers (default: 5)
+2. **Team size** — number of engineers (default from config)
 3. **Vacation days** — total person-days of PTO (default: 0)
 4. **Sick days** — total person-days of sick leave (default: 0)
-5. **Support %** — percentage allocated to support (default: 20%)
+5. **Support %** — percentage allocated to support (default from config)
 
 ## Phase 2: Run Script
 
-Run the script at `sprint-planner/scripts/compute-kpi.py`:
+Run the script at `sprint-master/scripts/compute-kpi.py`:
 
 ```bash
-python3 sprint-planner/scripts/compute-kpi.py \
-  --board-name "Mobile Engine" \
+python3 sprint-master/scripts/compute-kpi.py \
   --sprint-name "{sprint_name}" \
-  --team-size {team_size} \
   --vacation-days {vacation_days} \
-  --sick-days {sick_days} \
-  --support-pct {support_pct}
+  --sick-days {sick_days}
 ```
 
+Add `--team-size` or `--support-pct` only if the user overrides the defaults.
+
 The script handles everything autonomously:
+- Reads Atlassian URL, board name, credentials, and defaults from config.json
 - Resolves board ID and sprint ID via Jira Agile REST API
 - Fetches the GreenHopper Sprint Report (frozen snapshot at sprint close)
 - Classifies planned vs. unplanned using `issueKeysAddedDuringSprint`
