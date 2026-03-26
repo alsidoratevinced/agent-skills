@@ -23,6 +23,7 @@ import sys
 import urllib.request
 import urllib.error
 import urllib.parse
+from datetime import datetime, timedelta
 from pathlib import Path
 
 
@@ -220,6 +221,87 @@ def classify_issues(
     return planned, unplanned
 
 
+def parse_iso_datetime(s: str) -> datetime:
+    """Parse ISO datetime string from Jira."""
+    s = s.replace("Z", "+00:00")
+    # Ensure timezone offset has colon (e.g., +0000 → +00:00)
+    if re.match(r'.*[+-]\d{4}$', s):
+        s = s[:-2] + ":" + s[-2:]
+    return datetime.fromisoformat(s)
+
+
+def fetch_sprint_changes(base_url: str, auth: str, issue_key: str) -> list[dict]:
+    """Fetch Sprint field changelog entries for an issue."""
+    entries = []
+    start_at = 0
+    while True:
+        data = jira_get(base_url, auth, f"/rest/api/2/issue/{issue_key}/changelog", {
+            "startAt": start_at, "maxResults": 100,
+        })
+        for history in data.get("values", []):
+            for item in history.get("items", []):
+                if item.get("field") == "Sprint":
+                    entries.append({
+                        "created": history["created"],
+                        "from_string": item.get("fromString", ""),
+                        "to_string": item.get("toString", ""),
+                    })
+        if data.get("isLast", True) or start_at + 100 >= data.get("total", 0):
+            break
+        start_at += 100
+    return entries
+
+
+def reclassify_punted(
+    base_url: str,
+    auth: str,
+    punted: list[dict],
+    sprint_name: str,
+    complete_date_str: str,
+) -> tuple[list[dict], list[dict]]:
+    """
+    Separate punted issues into carryovers and true punts.
+
+    A carryover is a punted issue whose Sprint field was changed shortly
+    before the sprint's completeDate — i.e., it was moved by the
+    "Complete Sprint" action, not manually removed beforehand.
+
+    Jira processes "Complete Sprint" by first moving each issue (changelog
+    timestamps), then marking the sprint closed (completeDate). For sprints
+    with many issues, this can take 10+ minutes, so we use a 30-minute
+    window looking backwards from completeDate.
+    """
+    if not punted or not complete_date_str:
+        return [], punted
+
+    complete_dt = parse_iso_datetime(complete_date_str)
+    window = timedelta(minutes=30)
+
+    carryovers = []
+    true_punts = []
+
+    for issue in punted:
+        changes = fetch_sprint_changes(base_url, auth, issue["key"])
+        is_carryover = False
+
+        for change in changes:
+            from_sprints = change.get("from_string") or ""
+            to_sprints = change.get("to_string") or ""
+
+            if sprint_name in from_sprints and sprint_name not in to_sprints:
+                change_dt = parse_iso_datetime(change["created"])
+                if abs(change_dt - complete_dt) <= window:
+                    is_carryover = True
+                    break
+
+        if is_carryover:
+            carryovers.append(issue)
+        else:
+            true_punts.append(issue)
+
+    return carryovers, true_punts
+
+
 def compute_stats(issues: list[dict], completed_keys: set[str]) -> dict:
     """Compute stats for a group of issues.
 
@@ -359,12 +441,19 @@ def main():
     not_completed = [parse_issue(i) for i in contents.get("issuesNotCompletedInCurrentSprint", [])]
     punted = [parse_issue(i) for i in contents.get("puntedIssues", [])]
 
-    # Identify support bucket (scan all 3 arrays)
-    all_for_bucket_scan = completed + not_completed + punted
+    # Reclassify punted issues: those moved during "Complete Sprint" are carryovers
+    complete_date = sprint_info.get("isoCompleteDate") or sprint_info.get("completeDate", "")
+    carryovers, true_punts = reclassify_punted(
+        base_url, auth, punted, args.sprint_name, complete_date,
+    )
+    not_completed = not_completed + carryovers
+
+    # Identify support bucket (scan all arrays including true punts)
+    all_for_bucket_scan = completed + not_completed + true_punts
     support_bucket, _ = find_support_bucket(all_for_bucket_scan)
     sb_key = support_bucket["key"] if support_bucket else None
 
-    # Build working set: completed + not_completed, excluding support bucket and punted
+    # Build working set: completed + not_completed, excluding support bucket
     completed_filtered = [i for i in completed if i["key"] != sb_key]
     not_completed_filtered = [i for i in not_completed if i["key"] != sb_key]
     all_issues = completed_filtered + not_completed_filtered
