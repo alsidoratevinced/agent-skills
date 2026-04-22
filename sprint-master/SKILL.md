@@ -5,18 +5,43 @@ description: >
   create sprint, support bucket, capacity calc. (2) Plan — validate
   estimates/assignees, team breakdown, suggest goals. (3) KPI — post-sprint
   velocity report with planned vs. unplanned breakdown and completion rates.
-argument-hint: "[sprint name] - e.g. 'Mobile Engine 26S06'"
+argument-hint: "[team] [sprint name] - e.g. 'mfa Mobile MFA 26S06' or 'plan engine'"
 ---
 
 # Sprint Planner Skill
 
 ## Overview
 
-Three flows for sprint lifecycle management:
+Three flows for sprint lifecycle management, supporting multiple teams:
 
 1. **Prepare** — create a new sprint, calculate capacity, set up support bucket
 2. **Plan** — validate sprint readiness (estimates, assignees), team breakdown, suggest goals
 3. **KPI** — post-sprint velocity report with planned vs. unplanned analysis
+
+## Team Selection
+
+All flows require a **team key** to resolve team-specific configuration from
+`sprint-master/config.json` under `config.teams[team_key]`.
+
+### Resolution order
+
+1. If the user's input contains a known team key (e.g. `engine`, `mfa`), use it
+2. If the sprint name starts with a known `sprint_prefix` from any team config, infer the team
+3. Otherwise, ask the user which team:
+   > Which team? Available: **engine** (Mobile Engine), **mfa** (Mobile MFA)
+
+Once resolved, load team config:
+
+```
+team = config.teams[team_key]
+```
+
+All references below use `team.*` to mean fields from the resolved team config:
+- `team.board_name`, `team.project_key`, `team.team_name`, `team.team_lead`
+- `team.support_bucket_epic`, `team.sprint_prefix`
+- `team.defaults.team_size`, `team.defaults.support_pct`, `team.defaults.working_days_per_sprint`
+
+---
 
 ## Prepare Sprint
 
@@ -27,9 +52,9 @@ When the user asks to **prepare** or **create** a sprint, follow this flow:
 Ask the user for ALL of the following in a single prompt:
 
 1. **Sprint name** (if not already provided)
-   - Format: `{Team Name} {YY}S{Sprint Number}`
-   - Example: `Mobile Engine 26S06`
-2. **Team size** — number of engineers available (default: 5)
+   - Format: `{team.sprint_prefix} {YY}S{Sprint Number}`
+   - Example: `Mobile Engine 26S06` or `Mobile MFA 26S06`
+2. **Team size** — number of engineers available (default: `team.defaults.team_size`)
 3. **Vacation days** — total person-days of PTO in the sprint (default: 0)
 
 ### Phase 2: Execute
@@ -38,7 +63,7 @@ Once inputs are collected, execute all steps **without further prompts**.
 
 #### Step 1: Ensure Sprint Exists
 
-1. Find the board using `jira_get_agile_boards(board_name="{Team Name}")`
+1. Find the board using `jira_get_agile_boards(board_name="{team.board_name}")`
 2. Check future sprints: `jira_get_sprints_from_board(board_id, state="future")`
 3. Check active sprint: `jira_get_sprints_from_board(board_id, state="active")`
 4. If sprint exists → note its ID and proceed
@@ -50,13 +75,13 @@ Once inputs are collected, execute all steps **without further prompts**.
 #### Step 2: Calculate Capacity
 
 **Constants:**
-- Sprint working days = 9 (10 weekdays minus 1 day for ceremonies)
-- Support bucket % = 20%
+- Sprint working days = `team.defaults.working_days_per_sprint` (typically 9: 10 weekdays minus 1 day for ceremonies)
+- Support bucket % = `team.defaults.support_pct`%
 
 **Formulas:**
 ```
-gross_capacity   = team_size × 9
-support_bucket   = 20% × gross_capacity
+gross_capacity   = team_size × working_days
+support_bucket   = support_pct% × gross_capacity
 available        = gross_capacity - vacation_days - support_bucket
 ```
 
@@ -70,10 +95,13 @@ differ from what the docs suggest. The `/jira` skill handles field formatting,
 classification, and team assignment correctly.
 
 Invoke `/jira` with a request like:
-> Create a Story in project MOB with summary "[Support Bucket] Engine {YY}S{NN}",
-> assigned to Sasha Sidorenko, epic link MOB-9056, team Mobile Engine Team,
+> Create a Story in project {team.project_key} with summary "[Support Bucket] {short_team_label} {YY}S{NN}",
+> assigned to {team.team_lead}, epic link {team.support_bucket_epic}, team {team.team_name},
 > sprint {sprint_name} (ID {sprint_id}), time estimate {support_bucket in Jira format},
 > and classification "Support & Maintenance".
+
+Where `short_team_label` is derived from `team.sprint_prefix` (e.g. "Engine" from "Mobile Engine",
+"MFA" from "Mobile MFA").
 
 The `/jira` skill will show a confirmation — approve it to create the issue.
 
@@ -82,15 +110,13 @@ The `/jira` skill will show a confirmation — approve it to create the issue.
 | Field | Value |
 |-------|-------|
 | Type | Story |
-| Summary | `[Support Bucket] Engine {YY}S{NN}` |
-| Epic Link | `customfield_10014: "MOB-9056"` |
-| Assignee | Sasha Sidorenko |
-| Team | `customfield_10001` with Mobile Engine Team UUID from `jira/references/team-structure.json` |
+| Summary | `[Support Bucket] {short_team_label} {YY}S{NN}` |
+| Epic Link | `customfield_10014: "{team.support_bucket_epic}"` |
+| Assignee | `team.team_lead` |
+| Team | `customfield_10001` with team UUID from `jira/references/team-structure.json` |
 | Sprint | target sprint via `customfield_10020` |
 | Estimate | support_bucket value in Jira time format |
 | Classification | Support & Maintenance |
-
-Reference ticket: [MOB-16131](https://evinced.atlassian.net/browse/MOB-16131)
 
 ### Phase 3: Output Summary
 
@@ -105,13 +131,13 @@ After all steps complete, present a single summary:
 | Team size            | {n}    |
 | Gross capacity       | {x}d   |
 | Vacation days        | {v}d   |
-| Support bucket (20%) | {s}d   |
+| Support bucket ({support_pct}%) | {s}d   |
 | **Available**        | **{a}d** |
 
 ### Created Issues
 | Issue | Summary | Estimate | Link |
 |-------|---------|----------|------|
-| {key} | [Support Bucket] Engine {YY}S{NN} | {s}d | [link] |
+| {key} | [Support Bucket] {short_team_label} {YY}S{NN} | {s}d | [link] |
 
 ### Sprint Info
 - Sprint: {sprint_name} (ID: {id}, state: {state})
@@ -127,7 +153,7 @@ When the user asks to **plan a sprint**, follow this flow:
 ### Phase 1: Identify Sprint
 
 If the sprint name is not provided, find the next upcoming sprint:
-1. Find the board: `jira_get_agile_boards(board_name="Mobile Engine")`
+1. Find the board: `jira_get_agile_boards(board_name="{team.board_name}")`
 2. Check future sprints: `jira_get_sprints_from_board(board_id, state="future")`
 3. Check active sprint: `jira_get_sprints_from_board(board_id, state="active")`
 4. Default to the future sprint, or active sprint if no future sprint exists
@@ -227,18 +253,23 @@ Combine all sections into a single summary:
 When the user asks for sprint **KPI**, **velocity**, **report**, or **metrics**,
 follow the detailed flow in [`references/kpi-flow.md`](references/kpi-flow.md).
 
+Pass the resolved `team_key` as the `--team` flag to the script.
+
 ---
 
 ## Reference
 
 ### Sprint Naming Convention
-Format: `{Team Name} {YY}S{Sprint Number}`
+Format: `{team.sprint_prefix} {YY}S{Sprint Number}`
 - **YY**: short year (26 for 2026)
 - **S**: literal
 - **Sprint Number**: two-digit, two-week sprint number
 
+### Configured Teams
+
+Teams are defined in `sprint-master/config.json` under the `teams` key.
+Each team key (e.g. `engine`, `mfa`) maps to its board, project, sprint prefix, and defaults.
+
 ### Jira Configuration
-- Board: "Mobile Engine" (scrum)
-- Team: "Mobile Engine Team" from `jira/references/team-structure.json`
-- Epic for support buckets: MOB-9056 (`[Engine][Sprint Support Buckets]`)
-- Project: MOB
+- Boards, project keys, and epics are per-team — see `config.json`
+- Team UUIDs are in `jira/references/team-structure.json`

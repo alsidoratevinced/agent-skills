@@ -1,16 +1,21 @@
 {
   "atlassian_url": "https://YOUR_ORG.atlassian.net",
-  "board_name": "YOUR_BOARD_NAME",
-  "project_key": "YOUR_PROJECT_KEY",
-  "team_name": "YOUR_TEAM_NAME",
-  "team_lead": "YOUR_NAME",
-  "support_bucket_epic": "YOUR_EPIC_KEY",
-  "sprint_prefix": "YOUR_SPRINT_PREFIX",
-  "defaults": {
-    "team_size": 5,
-    "support_pct": 20,
-    "working_days_per_sprint": 9
-  },
   "jira_email": "",
-  "jira_api_token": ""
+  "jira_api_token": "",
+  "default_team": "my_team",
+  "teams": {
+    "my_team": {
+      "board_name": "YOUR_BOARD_NAME",
+      "project_key": "YOUR_PROJECT_KEY",
+      "team_name": "YOUR_TEAM_NAME",
+      "team_lead": "YOUR_NAME",
+      "support_bucket_epic": "YOUR_EPIC_KEY",
+      "sprint_prefix": "YOUR_SPRINT_PREFIX",
+      "defaults": {
+        "team_size": 5,
+        "support_pct": 20,
+        "working_days_per_sprint": 9
+      }
+    }
+  }
 }

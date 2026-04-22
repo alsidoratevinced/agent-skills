@@ -4,7 +4,8 @@ When the user asks for sprint **KPI**, **velocity**, **report**, or **metrics**,
 
 ## Prerequisites
 
-The script reads credentials and team settings from `sprint-master/config.json`.
+The script reads shared credentials from the top level of `sprint-master/config.json`
+and team-specific settings from `config.teams[team_key]`.
 If the file doesn't exist, copy `config.template.json` and fill in your values.
 
 ## Phase 1: Collect Inputs
@@ -24,12 +25,14 @@ Run the script at `sprint-master/scripts/compute-kpi.py`:
 
 ```bash
 python3 sprint-master/scripts/compute-kpi.py \
+  --team "{team_key}" \
   --sprint-name "{sprint_name}" \
   --vacation-days {vacation_days} \
   --sick-days {sick_days}
 ```
 
 Add `--team-size` or `--support-pct` only if the user overrides the defaults.
+The `--team` flag selects the team config (e.g. `engine`, `mfa`). If omitted, uses `default_team` from config.
 
 The script handles everything autonomously:
 - Reads Atlassian URL, board name, credentials, and defaults from config.json

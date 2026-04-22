@@ -4,11 +4,13 @@ Compute sprint KPI metrics using the Jira GreenHopper Sprint Report API.
 
 Usage:
     python compute-kpi.py --sprint-name "Mobile Engine 26S05"
+    python compute-kpi.py --sprint-name "Mobile MFA 26S05" --team mfa
     python compute-kpi.py --sprint-name "Mobile Engine 26S05" --vacation-days 2
     python compute-kpi.py --sprint-name "Mobile Engine 26S05" --config path/to/config.json
 
-All team-specific settings (Atlassian URL, board name, credentials, defaults)
-are read from config.json. See config.template.json for the expected format.
+Shared settings (Atlassian URL, credentials) live at the top level of config.json.
+Team-specific settings (board name, defaults) live under config.teams[team_key].
+See config.template.json for the expected format.
 
 Output: Markdown-formatted KPI report to stdout.
 """
@@ -54,6 +56,30 @@ def load_config(config_path: str | None) -> dict:
 
     with open(path) as f:
         return json.load(f)
+
+
+def resolve_team_config(config: dict, team_key: str | None) -> dict:
+    """Resolve team-specific config from config.teams[key].
+
+    Falls back to default_team if no key is given. For backward compatibility,
+    if there is no 'teams' key, returns the top-level config as-is.
+    """
+    teams = config.get("teams")
+    if not teams:
+        # Legacy single-team config — return as-is
+        return config
+
+    key = team_key or config.get("default_team")
+    if not key:
+        print("Error: No --team specified and no default_team in config.", file=sys.stderr)
+        sys.exit(1)
+
+    if key not in teams:
+        available = ", ".join(sorted(teams.keys()))
+        print(f"Error: Team '{key}' not found. Available teams: {available}", file=sys.stderr)
+        sys.exit(1)
+
+    return teams[key]
 
 
 # ---------------------------------------------------------------------------
@@ -407,6 +433,7 @@ def format_report(
 def main():
     parser = argparse.ArgumentParser(description="Compute sprint KPI metrics from Jira GreenHopper API")
     parser.add_argument("--sprint-name", required=True, help="Sprint name (e.g. 'Mobile Engine 26S05')")
+    parser.add_argument("--team", help="Team key from config.teams (e.g. 'engine', 'mfa'). Uses default_team if omitted.")
     parser.add_argument("--config", help="Path to config.json (default: auto-discover)")
     parser.add_argument("--board-name", help="Override board name from config")
     parser.add_argument("--team-size", type=int, help="Override team size from config")
@@ -415,12 +442,13 @@ def main():
     parser.add_argument("--support-pct", type=int, help="Override support percentage from config")
     args = parser.parse_args()
 
-    # Load config
+    # Load config and resolve team
     config = load_config(args.config)
-    defaults = config.get("defaults", {})
+    team_config = resolve_team_config(config, args.team)
+    defaults = team_config.get("defaults", {})
 
     base_url = config["atlassian_url"]
-    board_name = args.board_name or config["board_name"]
+    board_name = args.board_name or team_config["board_name"]
     team_size = args.team_size if args.team_size is not None else defaults.get("team_size", 5)
     support_pct = args.support_pct if args.support_pct is not None else defaults.get("support_pct", 20)
     working_days = defaults.get("working_days_per_sprint", 9)
