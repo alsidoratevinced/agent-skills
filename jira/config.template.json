@@ -19,15 +19,15 @@
   ],
   "title_tag_to_team": {
     "[Engine]": "Mobile Engine Team",
-    "[MFA]": "MFA",
-    "[Android]": "Mobile Android Team",
-    "[iOS]": "Mobile iOS Team",
-    "[Appium]": "Mobile Android Team",
+    "[MFA]": "Mobile Engine Team",
+    "[Android]": "Mobile SDK Team",
+    "[iOS]": "Mobile SDK Team",
+    "[Appium]": "Mobile SDK Team",
     "[QA]": null,
-    "[Espresso SDK]": "Mobile Android Team",
-    "[XCUI SDK]": "Mobile iOS Team",
-    "[WDIO Mobile SDK]": "MFA"
+    "[Espresso SDK]": "Mobile SDK Team",
+    "[XCUI SDK]": "Mobile SDK Team",
+    "[WDIO Mobile SDK]": "Mobile SDK Team"
   },
-  "org_id": "YOUR_ORG_ID (optional, for fetch-teams.py script)",
-  "site_id": "YOUR_SITE_ID (optional, for fetch-teams.py script)"
+  "org_id": "",
+  "site_id": ""
 }

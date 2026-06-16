@@ -1,151 +1,187 @@
 #!/usr/bin/env python3
 """
-Fetch Atlassian team structure and write to team-structure.json.
+Fetch Atlassian team structure and write to references/team-structure.json.
+
+Uses the Atlassian GraphQL gateway (/gateway/api/graphql), which works with a
+normal Jira Cloud API token over basic auth -- no admin access or OAuth scope
+needed. siteId (cloudId) and orgId are auto-discovered, so no manual IDs.
 
 Usage:
-    ATLASSIAN_API_TOKEN=your_token python fetch-teams.py \\
-        --email you@company.com \\
-        --org-id YOUR_ORG_ID \\
-        [--site-id YOUR_SITE_ID] \\
-        [--atlassian-url https://your-domain.atlassian.net] \\
+    JIRA_USERNAME=you@company.com JIRA_API_TOKEN=xxxx \\
+        python3 fetch-teams.py [--jira-url https://your-domain.atlassian.net] \\
         [--output ../references/team-structure.json]
 
-Finding required IDs:
-    org_id:  Go to https://admin.atlassian.com -> the URL contains /o/{ORG_ID}/
-             Or: Settings > API keys
-    site_id: Go to https://YOUR-DOMAIN.atlassian.net/_edge/tenant_info
-             The "cloudId" field is your site ID.
-             IMPORTANT: Without site_id, site-scoped teams will NOT be returned.
+Environment variables:
+    JIRA_URL        Base URL (default: https://evinced.atlassian.net).
+                    May also be set via --jira-url.
+    JIRA_USERNAME   Atlassian account email (basic-auth user).
+    JIRA_API_TOKEN  API token from
+                    https://id.atlassian.com/manage-profile/security/api-tokens
 
-API token:
-    Generate at: https://id.atlassian.com/manage-profile/security/api-tokens
-    Pass via ATLASSIAN_API_TOKEN environment variable (never hardcode).
+Tip: source the token already configured for the mcp-atlassian server:
+    export JIRA_USERNAME=you@company.com
+    export JIRA_API_TOKEN=$(python3 -c "import json,os; \\
+        print(json.load(open(os.path.expanduser('~/.claude.json')))\\
+        ['mcpServers']['atlassian']['env']['JIRA_API_TOKEN'])")
 """
 
 import argparse
+import base64
 import json
 import os
 import sys
-import time
+import urllib.error
+import urllib.request
 from datetime import date
 from pathlib import Path
 
-try:
-    import requests
-except ImportError:
-    print("Error: 'requests' library is required. Install with: pip install requests")
-    sys.exit(1)
-
-TEAMS_API_BASE = "https://api.atlassian.com/public/teams/v1/org"
+DEFAULT_JIRA_URL = "https://evinced.atlassian.net"
 DEFAULT_OUTPUT = str(Path(__file__).parent.parent / "references" / "team-structure.json")
+TEAM_ARI_PREFIX = "ari:cloud:identity::team/"
 
 
-def fetch_teams(org_id, site_id, auth):
-    """Fetch all teams with cursor-based pagination."""
+def _post_graphql(gql_url, auth_header, operation_name, query, variables):
+    """POST a named GraphQL operation and return the `data` object.
+
+    Raises RuntimeError on transport errors or GraphQL `errors`.
+    """
+    body = json.dumps(
+        {"operationName": operation_name, "query": query, "variables": variables}
+    ).encode("utf-8")
+    req = urllib.request.Request(gql_url, data=body, method="POST")
+    req.add_header("Authorization", auth_header)
+    req.add_header("Content-Type", "application/json")
+    req.add_header("Accept", "application/json")
+    try:
+        with urllib.request.urlopen(req) as resp:
+            payload = json.load(resp)
+    except urllib.error.HTTPError as e:
+        detail = e.read().decode("utf-8", "replace")[:500]
+        raise RuntimeError(f"GraphQL HTTP {e.code}: {detail}") from None
+    except urllib.error.URLError as e:
+        raise RuntimeError(f"GraphQL request failed: {e.reason}") from None
+    if payload.get("errors"):
+        raise RuntimeError(f"GraphQL errors: {json.dumps(payload['errors'])[:500]}")
+    return payload.get("data") or {}
+
+
+def _get_json(url, auth_header):
+    req = urllib.request.Request(url, method="GET")
+    req.add_header("Authorization", auth_header)
+    req.add_header("Accept", "application/json")
+    try:
+        with urllib.request.urlopen(req) as resp:
+            return json.load(resp)
+    except urllib.error.HTTPError as e:
+        detail = e.read().decode("utf-8", "replace")[:300]
+        raise RuntimeError(f"HTTP {e.code} for {url}: {detail}") from None
+    except urllib.error.URLError as e:
+        raise RuntimeError(f"Request to {url} failed: {e.reason}") from None
+
+
+def discover_site_id(jira_url, auth_header):
+    """cloudId == siteId, exposed unauthenticated at /_edge/tenant_info."""
+    data = _get_json(f"{jira_url}/_edge/tenant_info", auth_header)
+    site_id = data.get("cloudId")
+    if not site_id:
+        raise RuntimeError("Could not resolve cloudId from /_edge/tenant_info")
+    return site_id
+
+
+def discover_org_id(gql_url, auth_header, site_id):
+    query = (
+        "query OrgId($c: [ID!]!) { tenantContexts(cloudIds: $c) { orgId } }"
+    )
+    data = _post_graphql(gql_url, auth_header, "OrgId", query, {"c": [site_id]})
+    contexts = (data.get("tenantContexts") or [])
+    org_id = contexts[0].get("orgId") if contexts else None
+    if not org_id:
+        raise RuntimeError("Could not resolve orgId from tenantContexts")
+    return org_id
+
+
+def fetch_teams(gql_url, auth_header, site_id, org_ari):
+    """Return list of {id (bare uuid), name, description} for every team."""
+    query = (
+        "query TeamList($s: String!, $o: ID!, $after: String) {"
+        " team { teamSearchV2(siteId: $s, organizationId: $o,"
+        " filter: { query: \"\" }, first: 100, after: $after) {"
+        " nodes { team { id displayName description } }"
+        " pageInfo { hasNextPage endCursor } } } }"
+    )
     teams = []
-    cursor = None
-
+    after = None
     while True:
-        url = f"{TEAMS_API_BASE}/{org_id}/teams"
-        params = {"size": 300}
-        if site_id:
-            params["siteId"] = site_id
-        if cursor:
-            params["cursor"] = cursor
-
-        resp = requests.get(url, params=params, auth=auth)
-        if resp.status_code == 429:
-            retry_after = int(resp.headers.get("Retry-After", 5))
-            print(f"  Rate limited, waiting {retry_after}s...")
-            time.sleep(retry_after)
-            continue
-        resp.raise_for_status()
-
-        data = resp.json()
-        for team in data.get("entities", []):
+        data = _post_graphql(
+            gql_url, auth_header, "TeamList",
+            query, {"s": site_id, "o": org_ari, "after": after},
+        )
+        search = (data.get("team") or {}).get("teamSearchV2") or {}
+        for node in search.get("nodes") or []:
+            team = node.get("team") or {}
+            raw_id = team.get("id", "")
             teams.append({
+                "id": raw_id.replace(TEAM_ARI_PREFIX, ""),
                 "name": team.get("displayName", ""),
-                "id": team.get("teamId", ""),
-                "description": team.get("description", ""),
+                "description": team.get("description") or "",
             })
-
-        cursor = data.get("cursor")
-        if not cursor or not data.get("entities"):
+        page = search.get("pageInfo") or {}
+        if page.get("hasNextPage"):
+            after = page.get("endCursor")
+        else:
             break
-
     return teams
 
 
-def fetch_members(org_id, team_id, auth):
-    """Fetch all members for a team with relay-style pagination."""
+def fetch_members(gql_url, auth_header, site_id, team_uuid):
+    """Return list of {name, account_id} for one team."""
+    query = (
+        "query TeamMembers($id: ID!, $s: String!, $after: String) {"
+        " team { teamV2(id: $id, siteId: $s) {"
+        " members(first: 50, after: $after) {"
+        " nodes { member { accountId name } }"
+        " pageInfo { hasNextPage endCursor } } } } }"
+    )
+    team_ari = TEAM_ARI_PREFIX + team_uuid
     members = []
-    cursor = None
-
+    after = None
     while True:
-        url = f"{TEAMS_API_BASE}/{org_id}/teams/{team_id}/members"
-        body = {"first": 50}
-        if cursor:
-            body["after"] = cursor
-
-        resp = requests.post(url, json=body, auth=auth)
-        if resp.status_code == 429:
-            retry_after = int(resp.headers.get("Retry-After", 5))
-            print(f"  Rate limited, waiting {retry_after}s...")
-            time.sleep(retry_after)
-            continue
-        resp.raise_for_status()
-
-        data = resp.json()
-        for edge in data.get("edges", []):
-            node = edge.get("node", {})
+        data = _post_graphql(
+            gql_url, auth_header, "TeamMembers",
+            query, {"id": team_ari, "s": site_id, "after": after},
+        )
+        conn = ((data.get("team") or {}).get("teamV2") or {}).get("members") or {}
+        for node in conn.get("nodes") or []:
+            member = node.get("member") or {}
             members.append({
-                "account_id": node.get("accountId", ""),
-                "name": ""  # Resolved separately if atlassian_url provided
+                "name": member.get("name", ""),
+                "account_id": member.get("accountId", ""),
             })
-
-        page_info = data.get("pageInfo", {})
-        if page_info.get("hasNextPage"):
-            cursor = page_info.get("endCursor")
+        page = conn.get("pageInfo") or {}
+        if page.get("hasNextPage"):
+            after = page.get("endCursor")
         else:
             break
-
     return members
 
 
-def resolve_user(atlassian_url, account_id, auth):
-    """Resolve accountId to display name via Jira REST API."""
-    url = f"{atlassian_url}/rest/api/3/user"
-    params = {"accountId": account_id}
-
+def load_previous_team_names(output_path):
     try:
-        resp = requests.get(url, params=params, auth=auth)
-        if resp.status_code == 429:
-            retry_after = int(resp.headers.get("Retry-After", 5))
-            time.sleep(retry_after)
-            resp = requests.get(url, params=params, auth=auth)
-        resp.raise_for_status()
-        return resp.json().get("displayName", "")
-    except requests.RequestException:
-        return ""
+        with open(output_path) as f:
+            return set((json.load(f).get("teams") or {}).keys())
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Fetch Atlassian team structure and write to team-structure.json",
+        description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=__doc__,
-    )
-    parser.add_argument("--email", required=True, help="Atlassian account email")
-    parser.add_argument("--org-id", required=True, help="Atlassian organization ID")
-    parser.add_argument(
-        "--site-id",
-        default=None,
-        help="Atlassian site ID (cloudId). Required for site-scoped teams.",
     )
     parser.add_argument(
-        "--atlassian-url",
-        default=None,
-        help="Jira base URL for resolving user names (e.g., https://evinced.atlassian.net)",
+        "--jira-url",
+        default=os.environ.get("JIRA_URL", DEFAULT_JIRA_URL),
+        help=f"Jira base URL (default: {DEFAULT_JIRA_URL} or $JIRA_URL)",
     )
     parser.add_argument(
         "--output",
@@ -154,58 +190,60 @@ def main():
     )
     args = parser.parse_args()
 
-    api_token = os.environ.get("ATLASSIAN_API_TOKEN")
-    if not api_token:
-        print("Error: Set ATLASSIAN_API_TOKEN environment variable")
-        print("Generate token at: https://id.atlassian.com/manage-profile/security/api-tokens")
+    jira_url = args.jira_url.rstrip("/")
+    username = os.environ.get("JIRA_USERNAME")
+    token = os.environ.get("JIRA_API_TOKEN")
+    if not username or not token:
+        print("Error: set JIRA_USERNAME and JIRA_API_TOKEN environment variables.")
+        print("Token: https://id.atlassian.com/manage-profile/security/api-tokens")
         sys.exit(1)
 
-    auth = (args.email, api_token)
+    auth_header = "Basic " + base64.b64encode(
+        f"{username}:{token}".encode("utf-8")
+    ).decode("ascii")
+    gql_url = f"{jira_url}/gateway/api/graphql"
 
-    print(f"Fetching teams for org {args.org_id}...")
-    if args.site_id:
-        print(f"  Site ID: {args.site_id}")
-    else:
-        print("  WARNING: No --site-id provided. Site-scoped teams will NOT be returned.")
+    print(f"Discovering site/org for {jira_url}...")
+    site_id = discover_site_id(jira_url, auth_header)
+    org_id = discover_org_id(gql_url, auth_header, site_id)
+    org_ari = f"ari:cloud:platform::org/{org_id}"
+    print(f"  siteId={site_id}  orgId={org_id}")
 
-    teams = fetch_teams(args.org_id, args.site_id, auth)
+    print("Fetching teams...")
+    teams = fetch_teams(gql_url, auth_header, site_id, org_ari)
     print(f"Found {len(teams)} teams")
 
-    for i, team in enumerate(teams):
-        print(f"  Fetching members for {team['name']} ({i + 1}/{len(teams)})...")
-        team["members"] = fetch_members(args.org_id, team["id"], auth)
-
-        if args.atlassian_url:
-            for member in team["members"]:
-                name = resolve_user(args.atlassian_url, member["account_id"], auth)
-                member["name"] = name
-                if name:
-                    print(f"    {name}")
-
-        # Small delay to avoid rate limiting
-        time.sleep(0.2)
-
-    # Convert list to dict keyed by team name for easier lookup
     teams_dict = {}
-    for team in teams:
+    for i, team in enumerate(sorted(teams, key=lambda t: t["name"].lower())):
+        members = fetch_members(gql_url, auth_header, site_id, team["id"])
+        members.sort(key=lambda m: m["account_id"])
+        print(f"  ({i + 1}/{len(teams)}) {team['name']}: {len(members)} members")
         teams_dict[team["name"]] = {
             "id": team["id"],
-            "description": team.get("description", ""),
-            "members": team["members"],
+            "description": team["description"],
+            "members": members,
         }
 
-    output = {
-        "last_updated": str(date.today()),
-        "teams": teams_dict,
-    }
-
     output_path = Path(args.output)
+    previous_names = load_previous_team_names(output_path)
+
+    result = {"last_updated": str(date.today()), "teams": teams_dict}
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
     with open(output_path, "w") as f:
-        json.dump(output, f, indent=2, ensure_ascii=False)
+        json.dump(result, f, indent=2, ensure_ascii=False)
+        f.write("\n")
 
-    print(f"\nWrote {len(teams)} teams to {output_path}")
+    print(f"\nWrote {len(teams_dict)} teams to {output_path}")
+    if previous_names is not None:
+        current = set(teams_dict.keys())
+        added = sorted(current - previous_names)
+        removed = sorted(previous_names - current)
+        if added:
+            print(f"  Added:   {', '.join(added)}")
+        if removed:
+            print(f"  Removed: {', '.join(removed)}")
+        if not added and not removed:
+            print("  No team additions or removals vs. previous file.")
     print("Done!")
 
 

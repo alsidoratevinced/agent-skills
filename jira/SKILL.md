@@ -57,7 +57,7 @@ When ANY Jira request mentions a person by first name, partial name, or team:
 2. Match the person by name + team context
 3. Use the resolved full name in JQL queries
 
-This is critical for ambiguous names (e.g., "Anton from iOS team" vs "Anton" from Engine team).
+This is critical for ambiguous names (e.g., "Anton from mobile SDK team" (Anton Yereshchenko) vs "Anton" from Engine team (Anton Malinin)).
 
 ## Issue Creation
 
@@ -125,8 +125,8 @@ Translate natural language to JQL. Use config `project_key` as default project.
 - "tasks in sprint" -> `project = {project_key} AND sprint in openSprints()`
 - "high priority issues" -> `project = {project_key} AND priority = High AND status != Done`
 - "issues in epic X" -> `parent = X OR "Epic Link" = X`
-- "tickets on Anton from iOS" -> look up team-structure.json -> find Anton Yereshchenko in Mobile iOS Team -> `assignee = "Anton Yereshchenko" ORDER BY updated DESC`
-- "iOS team open bugs" -> look up Mobile iOS Team members -> `assignee in (...) AND issuetype = Bug AND status != Done`
+- "tickets on Anton from mobile SDK" -> look up team-structure.json -> find Anton Yereshchenko in Mobile SDK Team -> `assignee = "Anton Yereshchenko" ORDER BY updated DESC`
+- "mobile SDK team open bugs" -> look up Mobile SDK Team members -> `assignee in (...) AND issuetype = Bug AND status != Done`
 
 Format results as a markdown table with clickable links.
 
@@ -169,13 +169,37 @@ See `references/workflow-rules.md` for detailed error recovery procedures.
 
 **Quick guide:**
 - Creation failed -> Show error, suggest fix, don't retry without user input
+- "Team … not found" -> team UUID is stale; run the Refreshing Team Structure flow, then retry
 - Missing team -> Infer from assignee/tags/epic, fall back to default
 - Missing estimate -> Mark as TBD, list in summary
 - Link failed -> Verify both issues exist, check link type name, retry once
+
+## Refreshing Team Structure
+
+`references/team-structure.json` goes stale when Atlassian teams are renamed, merged, or
+deleted. A stale team UUID makes issue create/update fail with **"Team with id '…' not
+found."** Regenerate it from the live API with `scripts/fetch-teams.py`.
+
+**Run this flow when:**
+- The user asks ("refresh teams", "update team structure", "team-structure.json is stale").
+- **Reactively** — a create/update fails with "Team … not found": run this flow, then retry
+  the original mutation.
+
+**Short flow** (full procedure in `references/team-sync.md`):
+1. Ensure `JIRA_USERNAME` + `JIRA_API_TOKEN` are exported (source the token from the
+   `mcp-atlassian` server config if needed — see the reference doc).
+2. Run `python3 jira/scripts/fetch-teams.py` to regenerate `references/team-structure.json`
+   (auto-discovers IDs; prints an Added/Removed team diff).
+3. Verify: JSON parses, team count sane, review the diff.
+4. Reconcile `config.json` (`title_tag_to_team`, `default_team`) against the refreshed teams;
+   **confirm any remap with the user before editing**. Org fact: `[MFA]` → Mobile Engine Team.
+5. Report the diff + any config changes; retry the original mutation if this was reactive.
 
 ## Reference Files
 
 - `references/workflow-rules.md` — Detailed rules, confirmation templates, batch rules, error recovery
 - `references/custom-fields.md` — Custom field IDs, formats, and how to discover them
 - `references/team-structure.json` — Team UUIDs and members (read when team assignment needed)
+- `references/team-sync.md` — How to regenerate team-structure.json + reconcile config (run when teams change or a "Team not found" error occurs)
+- `scripts/fetch-teams.py` — Generator for team-structure.json (Atlassian GraphQL gateway, stdlib only)
 - `examples/usage-examples.md` — Example interactions showing expected behavior
