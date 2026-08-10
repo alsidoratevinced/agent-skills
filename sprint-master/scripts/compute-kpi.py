@@ -121,13 +121,14 @@ def jira_get(base_url: str, auth_header: str, path: str, params: dict | None = N
 
 
 def resolve_board_id(base_url: str, auth: str, board_name: str) -> int:
-    """Find board ID by name using the Jira Agile REST API."""
+    """Find board ID by name using the Jira Agile REST API. Prefers scrum boards."""
     data = jira_get(base_url, auth, "/rest/agile/1.0/board", {"name": board_name})
     values = data.get("values", [])
     if not values:
         print(f"Error: Board '{board_name}' not found.", file=sys.stderr)
         sys.exit(1)
-    return values[0]["id"]
+    scrum = [b for b in values if b.get("type") == "scrum"]
+    return (scrum or values)[0]["id"]
 
 
 def resolve_sprint(base_url: str, auth: str, board_id: int, sprint_name: str) -> dict:
