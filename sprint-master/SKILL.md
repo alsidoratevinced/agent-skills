@@ -2,7 +2,7 @@
 name: sprint-master
 description: >
   Sprint lifecycle management for Team Leads. Three flows: (1) Prepare —
-  create sprint, support bucket, capacity calc. (2) Plan — validate
+  create sprint, support bucket, release tasks, capacity calc. (2) Plan — validate
   estimates/assignees, team breakdown, suggest goals. (3) KPI — post-sprint
   velocity report with planned vs. unplanned breakdown and completion rates.
 argument-hint: "[team] [sprint name] - e.g. 'mfa Mobile MFA 26S06' or 'plan engine'"
@@ -14,7 +14,7 @@ argument-hint: "[team] [sprint name] - e.g. 'mfa Mobile MFA 26S06' or 'plan engi
 
 Three flows for sprint lifecycle management, supporting multiple teams:
 
-1. **Prepare** — create a new sprint, calculate capacity, set up support bucket
+1. **Prepare** — create a new sprint, calculate capacity, set up support bucket and release tasks
 2. **Plan** — validate sprint readiness (estimates, assignees), team breakdown, suggest goals
 3. **KPI** — post-sprint velocity report with planned vs. unplanned analysis
 
@@ -38,8 +38,9 @@ team = config.teams[team_key]
 
 All references below use `team.*` to mean fields from the resolved team config:
 - `team.board_name`, `team.project_key`, `team.team_name`, `team.team_lead`
-- `team.support_bucket_epic`, `team.sprint_prefix`
-- `team.defaults.team_size`, `team.defaults.support_pct`, `team.defaults.working_days_per_sprint`
+- `team.support_bucket_epic`, `team.releases_epic`, `team.sprint_prefix`
+- `team.defaults.team_size`, `team.defaults.support_pct`, `team.defaults.working_days_per_sprint`,
+  `team.defaults.release_task_estimate`
 
 ---
 
@@ -56,6 +57,15 @@ Ask the user for ALL of the following in a single prompt:
    - Example: `Mobile Engine 26S06` or `Mobile MFA 26S06`
 2. **Team size** — number of engineers available (default: `team.defaults.team_size`)
 3. **Vacation days** — total person-days of PTO in the sprint (default: 0)
+4. **Planned releases** — what is shipping this sprint (default: none)
+   - Free-form list, one release per line. Accepted forms:
+     - `Engine 2.5.0` → component "Engine", version "2.5.0"
+     - `MFA Companion App 1.7.0 - Anton Malinin` → trailing `- Name` sets the owner
+   - Offer "none" as an explicit choice — many sprints ship nothing, and the flow
+     must not stall waiting for releases that don't exist.
+
+If the user is answering via a multiple-choice prompt, ask for releases as free text
+(the set of possible releases is unbounded) and always include a "none" option.
 
 ### Phase 2: Execute
 
@@ -118,6 +128,43 @@ The `/jira` skill will show a confirmation — approve it to create the issue.
 | Estimate | support_bucket value in Jira time format |
 | Classification | Support & Maintenance |
 
+#### Step 4: Create Release Tasks
+
+Skip this step entirely if the user reported no planned releases.
+
+Create **one Task per planned release**, linked to `team.releases_epic`. Use the `/jira`
+skill (same reasoning as Step 3 — do not call `jira_create_issue` directly).
+
+Invoke `/jira` with a batch request like:
+> Create {n} Tasks in project {team.project_key}, each linked to epic {team.releases_epic},
+> team {team.team_name}, sprint {sprint_name} (ID {sprint_id}), time estimate
+> {team.defaults.release_task_estimate}, classification "Product Roadmap":
+> 1. "[{component}] Release {version}" assigned to {owner or leave unassigned}
+> 2. ...
+
+**Expected fields per release task:**
+
+| Field | Value |
+|-------|-------|
+| Type | Task |
+| Summary | `[{component}] Release {version}` |
+| Epic Link | `customfield_10014: "{team.releases_epic}"` |
+| Assignee | owner if the user gave one, otherwise unassigned |
+| Team | `customfield_10001` with team UUID from `jira/references/team-structure.json` |
+| Sprint | target sprint via `customfield_10020` |
+| Estimate | `team.defaults.release_task_estimate` |
+| Classification | Product Roadmap |
+
+**Notes:**
+- Summary format follows the existing convention in the releases epic
+  (e.g. `[Appium Java SDK] Release Appium v1.46.0`). Preserve the user's version
+  string verbatim — do not normalise `1.7.0` to `v1.7.0` or vice versa.
+- Release tasks are real sprint work: their combined estimate consumes the
+  `available` capacity from Step 2. Report that in Phase 3, but do **not** subtract
+  releases from the support bucket — support is a fixed percentage of gross capacity.
+- Unassigned release tasks are expected at prepare time; the Plan flow's health
+  check will surface them later.
+
 ### Phase 3: Output Summary
 
 After all steps complete, present a single summary:
@@ -133,15 +180,21 @@ After all steps complete, present a single summary:
 | Vacation days        | {v}d   |
 | Support bucket ({support_pct}%) | {s}d   |
 | **Available**        | **{a}d** |
+| Release tasks ({n})  | {r}d   |
+| **Available after releases** | **{a - r}d** |
+
+Omit the two release rows when there are no planned releases.
 
 ### Created Issues
 | Issue | Summary | Estimate | Link |
 |-------|---------|----------|------|
 | {key} | [Support Bucket] {short_team_label} {YY}S{NN} | {s}d | [link] |
+| {key} | [{component}] Release {version} | {re}d | [link] |
 
 ### Sprint Info
 - Sprint: {sprint_name} (ID: {id}, state: {state})
 - Active sprint: {active_name} (ends {end_date})
+- Planned releases: {list, or "none"}
 ```
 
 ---
