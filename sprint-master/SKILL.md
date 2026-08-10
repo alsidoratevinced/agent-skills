@@ -60,6 +60,7 @@ Ask the user for ALL of the following in a single prompt:
 4. **Planned releases** — what is shipping this sprint (default: none)
    - Free-form list, one release per line. Accepted forms:
      - `Engine 2.5.0` → component "Engine", version "2.5.0"
+     - `Engine` → component only; version falls back to the sprint number (see below)
      - `MFA Companion App 1.7.0 - Anton Malinin` → trailing `- Name` sets the owner
    - Offer "none" as an explicit choice — many sprints ship nothing, and the flow
      must not stall waiting for releases that don't exist.
@@ -159,6 +160,10 @@ Invoke `/jira` with a batch request like:
 - Summary format follows the existing convention in the releases epic
   (e.g. `[Appium Java SDK] Release Appium v1.46.0`). Preserve the user's version
   string verbatim — do not normalise `1.7.0` to `v1.7.0` or vice versa.
+- **If the user gives a component with no version, use the sprint number as the
+  version** — e.g. `Engine` in sprint `Mobile Engine & MFA 26S17` becomes
+  `[Engine] Release 26S17`. Never invent or increment a version number: guessing
+  the next semver from release history is wrong often enough to be dangerous.
 - Release tasks are real sprint work: their combined estimate consumes the
   `available` capacity from Step 2. Report that in Phase 3, but do **not** subtract
   releases from the support bucket — support is a fixed percentage of gross capacity.

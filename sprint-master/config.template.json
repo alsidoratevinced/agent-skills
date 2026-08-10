@@ -16,7 +16,7 @@
         "team_size": 5,
         "support_pct": 20,
         "working_days_per_sprint": 9,
-        "release_task_estimate": "2d"
+        "release_task_estimate": "1d"
       }
     }
   }
