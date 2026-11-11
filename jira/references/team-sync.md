@@ -20,14 +20,22 @@ the Python 3 standard library.
 The script reads `JIRA_USERNAME` and `JIRA_API_TOKEN` from the environment (`JIRA_URL`
 defaults to the `atlassian_url` you use, e.g. `https://evinced.atlassian.net`).
 
-If they're not already exported, source the token from the configured `mcp-atlassian` server:
+If they're not already exported, source them from `sprint-master/config.json`, which holds
+`jira_email` + `jira_api_token` (gitignored, local only):
 
 ```bash
-export JIRA_USERNAME=<your-atlassian-email>
-export JIRA_API_TOKEN=$(python3 -c "import json,os; print(json.load(open(os.path.expanduser('~/.claude.json')))['mcpServers']['atlassian']['env']['JIRA_API_TOKEN'])")
+cd /path/to/agent-skills
+JIRA_USERNAME=$(python3 -c "import json;print(json.load(open('sprint-master/config.json'))['jira_email'])") \
+JIRA_API_TOKEN=$(python3 -c "import json;print(json.load(open('sprint-master/config.json'))['jira_api_token'])") \
+python3 jira/scripts/fetch-teams.py
 ```
 
 The token needs only normal user access (the same token the jira tools use).
+
+> **The user must run this themselves.** Claude Code's auto-mode classifier denies agent reads
+> of credential files as "Credential Exploration", and that denial covers the outcome — it
+> cannot be worked around with a different tool or script. Hand the user the command above
+> (prefixed with `!` in Claude Code so it runs in-session), then take over from step 3.
 
 ### 2. Run the generator
 ```bash
@@ -50,11 +58,17 @@ The refresh can remove or rename teams that `config.json` still references. Chec
   the team that absorbed it.
 - **`default_team`** — its `name` + `uuid` must still match a live team; update if not.
 
-**Always confirm remaps with the user (AskUserQuestion) before editing `config.json`** —
-which team absorbed a merged squad is a judgment call, not derivable from the data alone.
+**Confirm remaps with the user (AskUserQuestion) before editing `config.json`** — which team
+absorbed a merged squad is a judgment call, not derivable from the data alone.
 
-Known org fact: **MFA work is handled by the Mobile Engine Team** — map `[MFA]` →
-`Mobile Engine Team` (the former standalone MFA team was removed).
+**Exception — pure renames.** First compare UUIDs: build `{uuid: name}` from the refreshed
+file and look up each removed team's old UUID. If the UUID is still live under a new name, the
+team was *renamed*, not merged — the remap is derivable from the data, so apply it and report
+it rather than asking. Only teams whose UUID is genuinely gone need a judgment call (fall back
+to member-overlap to propose a successor).
+
+Known org fact: **MFA work is handled by the Mobile Auditor Team** — map `[MFA]` →
+`Mobile Auditor Team` (the former standalone MFA team was removed).
 
 ### 5. Report
 Summarize: team count, Added/Removed teams, and any `config.json` remaps applied. If this was

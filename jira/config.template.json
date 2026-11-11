@@ -14,19 +14,21 @@
   },
   "classification_options": [
     { "name": "Product Roadmap", "id": "11183", "description": "Planned product features and strategic initiatives" },
-    { "name": "Support & Maintenance", "id": "11184", "description": "Bug fixes, operational support, maintenance" },
-    { "name": "Technical Debt & Engineering Health", "id": "11185", "description": "Refactoring, performance, infrastructure" }
+    { "name": "Support", "id": "11184", "description": "Bug fixes, operational support, maintenance" },
+    { "name": "Technical Debt & Engineering Health", "id": "11185", "description": "Refactoring, performance, infrastructure" },
+    { "name": "Team Initiative", "id": "11290", "description": "Not described in Jira; ask before using" },
+    { "name": "IT Misc", "id": "11393", "description": "Not described in Jira; ask before using" }
   ],
   "title_tag_to_team": {
-    "[Engine]": "Mobile Engine Team",
-    "[MFA]": "Mobile Engine Team",
-    "[Android]": "Mobile SDK Team",
-    "[iOS]": "Mobile SDK Team",
-    "[Appium]": "Mobile SDK Team",
+    "[Engine]": "Mobile Auditor Team",
+    "[MFA]": "Mobile Auditor Team",
+    "[Android]": "Mobile Testing Tools",
+    "[iOS]": "Mobile Testing Tools",
+    "[Appium]": "Mobile Testing Tools",
     "[QA]": null,
-    "[Espresso SDK]": "Mobile SDK Team",
-    "[XCUI SDK]": "Mobile SDK Team",
-    "[WDIO Mobile SDK]": "Mobile SDK Team"
+    "[Espresso SDK]": "Mobile Testing Tools",
+    "[XCUI SDK]": "Mobile Testing Tools",
+    "[WDIO Mobile SDK]": "Mobile Testing Tools"
   },
   "org_id": "",
   "site_id": ""

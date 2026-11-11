@@ -14,7 +14,7 @@ argument-hint: "[action] [details] - e.g. 'create bug for login crash' or 'MOB-1
 
 ## Configuration
 
-!`cat jira/config.json 2>/dev/null || echo '{"error": "config.json not found. Copy config.template.json to config.json and fill in your values."}'`
+!`cat ~/.claude/skills/jira/config.json 2>/dev/null || echo '{"error": "config.json not found. Copy config.template.json to config.json and fill in your values."}'`
 
 If you see an error above, guide the user to set up their config:
 1. Copy `config.template.json` to `config.json`
@@ -69,8 +69,9 @@ This is critical for ambiguous names (e.g., "Anton from mobile SDK team" (Anton 
 5. On approval, call `jira_create_issue` with:
    - `project_key` from config
    - `summary`, `issue_type`, `description` from user input
-   - `assignee` (exact name from team-structure.json)
+   - `assignee` (`account_id` from team-structure.json)
    - `additional_fields` with team UUID, epic link, classification, time estimate
+6. Verify the assignee on the created issue (see "When assigning a person")
 
 ### Field formats:
 
@@ -91,6 +92,7 @@ Replace `{team_field_id}`, `{epic_field_id}`, `{classification_field_id}` with t
 ## Team Assignment
 
 ### Priority order:
+0. **Team named by the user** -> look up that team's UUID; it overrides the assignee's team
 1. **Assignee specified** -> Look up assignee in `references/team-structure.json` -> use their team's UUID
 2. **Title has tags** -> Match tag against `title_tag_to_team` in config -> look up team name in team-structure.json -> use UUID
 3. **Neither** -> Use `default_team.uuid` from config
@@ -103,8 +105,9 @@ Replace `{team_field_id}`, `{epic_field_id}`, `{classification_field_id}` with t
 
 ### When assigning a person:
 1. Search for the person's name in team-structure.json across all teams
-2. Use their `account_id` is not needed for `assignee` field (use display name)
+2. Pass their `account_id` as `assignee`
 3. But DO use their team's UUID for the team field
+4. `jira_create_issue` can silently drop the assignee (the issue comes back "Unassigned"). After creating, check the assignee; if it's missing, call `jira_assign_issue(issue_key, account_id)`
 
 ## Issue Updates
 
@@ -125,8 +128,8 @@ Translate natural language to JQL. Use config `project_key` as default project.
 - "tasks in sprint" -> `project = {project_key} AND sprint in openSprints()`
 - "high priority issues" -> `project = {project_key} AND priority = High AND status != Done`
 - "issues in epic X" -> `parent = X OR "Epic Link" = X`
-- "tickets on Anton from mobile SDK" -> look up team-structure.json -> find Anton Yereshchenko in Mobile SDK Team -> `assignee = "Anton Yereshchenko" ORDER BY updated DESC`
-- "mobile SDK team open bugs" -> look up Mobile SDK Team members -> `assignee in (...) AND issuetype = Bug AND status != Done`
+- "tickets on Anton from mobile SDK" -> look up team-structure.json -> find Anton Yereshchenko in Mobile Testing Tools -> `assignee = "Anton Yereshchenko" ORDER BY updated DESC`
+- "mobile SDK team open bugs" -> look up Mobile Testing Tools members -> `assignee in (...) AND issuetype = Bug AND status != Done`
 
 Format results as a markdown table with clickable links.
 
@@ -170,6 +173,7 @@ See `references/workflow-rules.md` for detailed error recovery procedures.
 **Quick guide:**
 - Creation failed -> Show error, suggest fix, don't retry without user input
 - "Team … not found" -> team UUID is stale; run the Refreshing Team Structure flow, then retry
+- "Select a valid option for Classification" -> option names changed in Jira; run `jira_get_field_options(field_id="customfield_10938")`, show the current options to the user, and update `classification_options` in `config.json`, `config.template.json` and `references/custom-fields.md`
 - Missing team -> Infer from assignee/tags/epic, fall back to default
 - Missing estimate -> Mark as TBD, list in summary
 - Link failed -> Verify both issues exist, check link type name, retry once
@@ -186,13 +190,16 @@ found."** Regenerate it from the live API with `scripts/fetch-teams.py`.
   the original mutation.
 
 **Short flow** (full procedure in `references/team-sync.md`):
-1. Ensure `JIRA_USERNAME` + `JIRA_API_TOKEN` are exported (source the token from the
-   `mcp-atlassian` server config if needed — see the reference doc).
+1. Ensure `JIRA_USERNAME` + `JIRA_API_TOKEN` are exported (they live in
+   `sprint-master/config.json` as `jira_email`/`jira_api_token`). **The user must run this
+   step** — agent reads of credential files are denied by the auto-mode classifier.
 2. Run `python3 jira/scripts/fetch-teams.py` to regenerate `references/team-structure.json`
    (auto-discovers IDs; prints an Added/Removed team diff).
 3. Verify: JSON parses, team count sane, review the diff.
-4. Reconcile `config.json` (`title_tag_to_team`, `default_team`) against the refreshed teams;
-   **confirm any remap with the user before editing**. Org fact: `[MFA]` → Mobile Engine Team.
+4. Reconcile `config.json` (`title_tag_to_team`, `default_team`) against the refreshed teams.
+   Check UUIDs first: a removed team whose UUID is still live under a new name was renamed —
+   apply and report it. **Confirm genuine merges with the user before editing.**
+   Org fact: `[MFA]` → Mobile Auditor Team.
 5. Report the diff + any config changes; retry the original mutation if this was reactive.
 
 ## Reference Files

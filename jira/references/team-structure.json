@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-06-16",
+  "last_updated": "2026-10-15",
   "teams": {
     "A11y": {
       "id": "3416da2d-5068-4f79-93c5-fd601ff19b45",
@@ -28,6 +28,62 @@
         {
           "name": "Quintin Balsdon",
           "account_id": "712020:f9d5bc2a-97bd-4857-b994-bcb03bde536b"
+        }
+      ]
+    },
+    "Agentic Tools": {
+      "id": "98ae79c0-4f3a-4828-8a9d-1c7091b7d02d",
+      "description": "",
+      "members": [
+        {
+          "name": "Ben Bracha",
+          "account_id": "5bcc4c22cdfb443b578dc391"
+        },
+        {
+          "name": "Kfir Orgil",
+          "account_id": "60aa6b51920950006f4d8ad1"
+        },
+        {
+          "name": "Oren Shlomi",
+          "account_id": "631ed651051efc6985666d30"
+        },
+        {
+          "name": "Kostiantyn Nikolaiev",
+          "account_id": "712020:24aa9932-aa17-46c3-9f5b-a541591a2eca"
+        },
+        {
+          "name": "Tal Kailler",
+          "account_id": "712020:80508ced-a4c8-47d3-9bae-0955e6eb8cff"
+        },
+        {
+          "name": "Adi Carmel",
+          "account_id": "712020:fbbd8896-2977-47cf-a107-4692283a768e"
+        }
+      ]
+    },
+    "AI & Infrastructure": {
+      "id": "9e350d12-b70c-4e42-b18b-e9b93566acf9",
+      "description": "Mirrors infra@evinced.com (GWS)",
+      "members": [
+        {
+          "name": "Adam Kanari",
+          "account_id": "600416111ffcc00076669450"
+        },
+        {
+          "name": "Oren Raab",
+          "account_id": "712020:0c420453-2b7e-4d70-a4e8-94a4b512bd23"
+        },
+        {
+          "name": "Aryeh Kiovetsky",
+          "account_id": "712020:1b26e5be-dbd9-462f-9d6f-60f320c20771"
+        },
+        {
+          "name": "Tal Avigad",
+          "account_id": "712020:aa17a59e-fe62-4e7b-87f6-a2ae97885372"
+        },
+        {
+          "name": "Enea Gozhdari",
+          "account_id": "712020:d7ea6a37-f546-4a1d-b5bf-a9f3122a3724"
         }
       ]
     },
@@ -75,16 +131,6 @@
         }
       ]
     },
-    "android-test": {
-      "id": "693cafc5-ddfa-46e2-b571-f4fb9d72bb65",
-      "description": "",
-      "members": [
-        {
-          "name": "Yarden Gerecht",
-          "account_id": "712020:bdd23596-4c55-4b6e-8936-f3de99a96d44"
-        }
-      ]
-    },
     "AppScanner SDK Squad": {
       "id": "5024e808-08e4-4051-995d-85a67f767b36",
       "description": "",
@@ -108,6 +154,70 @@
         {
           "name": "Chen Dar",
           "account_id": "712020:eca839f0-c790-4b0f-a15e-b6dbe39dcdb9"
+        }
+      ]
+    },
+    "Audit Studio": {
+      "id": "4dd040da-c1eb-4665-8dcf-c90fb6289e03",
+      "description": "Mirrors audit-studio@evinced.com (GWS)",
+      "members": [
+        {
+          "name": "Dana Babo",
+          "account_id": "62dd5bd1831f463d28e82a6c"
+        },
+        {
+          "name": "Vladyslav Gostev",
+          "account_id": "712020:083d0088-b886-4ec6-90a4-f2415c68e2a1"
+        },
+        {
+          "name": "Dan Menkes",
+          "account_id": "712020:37dc4cd6-cc28-4d8f-bf0c-eb4d6e1c67aa"
+        },
+        {
+          "name": "Viktor Koshovyi",
+          "account_id": "712020:88430e5c-062f-4586-9139-b4a9f011862b"
+        },
+        {
+          "name": "Itzik Basson",
+          "account_id": "712020:c6c2e758-6fd5-4360-aff4-383cd8e32655"
+        },
+        {
+          "name": "Tova Bernstein",
+          "account_id": "712020:d25daf99-ac2a-4232-aba8-007b6f943c4a"
+        },
+        {
+          "name": "Eliran Swisa",
+          "account_id": "712020:ff14e2c0-8eda-4d9e-9b92-6403764962eb"
+        }
+      ]
+    },
+    "Audit Validations": {
+      "id": "4ec81668-f807-419a-898c-4e2be5107c93",
+      "description": "Mirrors audit-validations@evinced.com (GWS)",
+      "members": [
+        {
+          "name": "Daniel Goren",
+          "account_id": "62652b1134b9b70068795fe7"
+        },
+        {
+          "name": "Dana Babo",
+          "account_id": "62dd5bd1831f463d28e82a6c"
+        },
+        {
+          "name": "Raz Cohen",
+          "account_id": "712020:0caf2c1a-792e-4b74-8922-e8138bef92fc"
+        },
+        {
+          "name": "Eden Mironi",
+          "account_id": "712020:2a084a0a-4b0d-4e54-9e6b-58771da744db"
+        },
+        {
+          "name": "Tair Hakman",
+          "account_id": "712020:636eb54f-7c6b-426f-a0f0-80631f30a7fb"
+        },
+        {
+          "name": "Tamir Yaffe",
+          "account_id": "712020:ae7e831f-74be-4405-beb2-0f25804a4c2d"
         }
       ]
     },
@@ -177,10 +287,6 @@
       "id": "cfc5e47b-6276-4a16-a37e-2aa9d268dd82",
       "description": "",
       "members": [
-        {
-          "name": "Anastasiia Voievidka",
-          "account_id": "60a55c3b5d67f2006961fc1c"
-        },
         {
           "name": "Jan Rogalo",
           "account_id": "62ffc269d75f523a60ef47a3"
@@ -263,28 +369,6 @@
         }
       ]
     },
-    "Infra-Cloud": {
-      "id": "e1689954-2890-4034-8949-622cd6de9f9a",
-      "description": "",
-      "members": [
-        {
-          "name": "Adam Kanari",
-          "account_id": "600416111ffcc00076669450"
-        },
-        {
-          "name": "Mor Cohen",
-          "account_id": "712020:a1d55338-4451-4414-bc85-e1f623130078"
-        },
-        {
-          "name": "Vitalii Borodin",
-          "account_id": "712020:ca1a79db-233f-43d0-a13c-b93eca3a3f1f"
-        },
-        {
-          "name": "Gil Sheinfeld",
-          "account_id": "712020:f808e9f8-105d-44aa-9f53-8e957a18a522"
-        }
-      ]
-    },
     "Infra-Gen-AI": {
       "id": "32c5fb9e-2c95-421d-a81f-f3d240ec85c2",
       "description": "",
@@ -333,42 +417,6 @@
         }
       ]
     },
-    "Infra-Web-Core": {
-      "id": "6bc18900-07a8-4ad2-b60c-2aa06f57cbee",
-      "description": "",
-      "members": [
-        {
-          "name": "David Ichilov",
-          "account_id": "630e5b913310c2492b5a037f"
-        },
-        {
-          "name": "Vladyslav Gostev",
-          "account_id": "712020:083d0088-b886-4ec6-90a4-f2415c68e2a1"
-        },
-        {
-          "name": "Raz Cohen",
-          "account_id": "712020:0caf2c1a-792e-4b74-8922-e8138bef92fc"
-        },
-        {
-          "name": "Itzik Basson",
-          "account_id": "712020:c6c2e758-6fd5-4360-aff4-383cd8e32655"
-        },
-        {
-          "name": "Tova Bernstein",
-          "account_id": "712020:d25daf99-ac2a-4232-aba8-007b6f943c4a"
-        }
-      ]
-    },
-    "ios-test": {
-      "id": "d8ecfc05-7141-4b1e-882d-0cfa7058dc28",
-      "description": "",
-      "members": [
-        {
-          "name": "Yarden Gerecht",
-          "account_id": "712020:bdd23596-4c55-4b6e-8936-f3de99a96d44"
-        }
-      ]
-    },
     "Manual Auditor": {
       "id": "c3af33c3-40c6-4edc-9153-6cb979d403f2",
       "description": "",
@@ -395,10 +443,14 @@
         }
       ]
     },
-    "Mobile Engine Team": {
+    "Mobile Auditor Team": {
       "id": "206cd4c7-6cdb-4a6e-aadd-e11958ee265a",
-      "description": "Also known as Rust Team 🤟",
+      "description": "Also known as Rust Team 🤟\nAlso known as Engine Team 🤟",
       "members": [
+        {
+          "name": "Illia Kharebashvili",
+          "account_id": "62423b51ad6b7e006aa37e5a"
+        },
         {
           "name": "Iurii Vatazhyshyn",
           "account_id": "62aad252cb3cb700699279e9"
@@ -424,16 +476,12 @@
           "account_id": "712020:4d6fd50f-dd3f-43da-893e-b344ecd57ac8"
         },
         {
-          "name": "Iuliia Smirnova",
-          "account_id": "712020:8146c1fc-8019-4bcc-beae-4810e739a3a0"
-        },
-        {
-          "name": "Anton Malinin",
-          "account_id": "712020:c144d080-d83a-4a51-9771-65a2b3ca6cbe"
-        },
-        {
           "name": "oleksandr kholiavko",
           "account_id": "712020:d4455400-0724-43b6-857b-f5db66e4b18c"
+        },
+        {
+          "name": "Quintin Balsdon",
+          "account_id": "712020:f9d5bc2a-97bd-4857-b994-bcb03bde536b"
         }
       ]
     },
@@ -452,10 +500,6 @@
       "description": "",
       "members": [
         {
-          "name": "Dmitrii Shatrov",
-          "account_id": "60dc84517d016900702ce77a"
-        },
-        {
           "name": "Roman Kotko",
           "account_id": "6114fc918c15ca006fec66e3"
         },
@@ -465,17 +509,7 @@
         }
       ]
     },
-    "Mobile Research": {
-      "id": "6b73253f-7df8-45b3-b67e-073234cb24f0",
-      "description": "",
-      "members": [
-        {
-          "name": "Asaf Chetrit",
-          "account_id": "6318af519794410874c76eee"
-        }
-      ]
-    },
-    "Mobile SDK Team": {
+    "Mobile Testing Tools": {
       "id": "69b2cd78-b4c3-4bf9-922b-af2bd183f4ab",
       "description": "",
       "members": [
@@ -506,28 +540,6 @@
         {
           "name": "Dima Shatrov",
           "account_id": "712020:efaed46b-aa46-419f-ac19-bfa330797b55"
-        }
-      ]
-    },
-    "MobileTechLeads": {
-      "id": "41ea572c-0a6a-4528-970b-23eaf3519bee",
-      "description": "",
-      "members": [
-        {
-          "name": "Alexandr Lambov",
-          "account_id": "5fd11c111051d100757d6058"
-        },
-        {
-          "name": "Asaf Chetrit",
-          "account_id": "6318af519794410874c76eee"
-        },
-        {
-          "name": "Alexandr Sushkov",
-          "account_id": "712020:5c64d9d1-abae-4598-b2d0-751db04ae49e"
-        },
-        {
-          "name": "Chen Dar",
-          "account_id": "712020:eca839f0-c790-4b0f-a15e-b6dbe39dcdb9"
         }
       ]
     },
@@ -653,6 +665,16 @@
         }
       ]
     },
+    "saas": {
+      "id": "d2bdb0fc-1758-48e4-9b40-69d11c6f68a3",
+      "description": "",
+      "members": [
+        {
+          "name": "Oded Hutzler",
+          "account_id": "629387d2a0eafd0069e67cb4"
+        }
+      ]
+    },
     "Technical Support": {
       "id": "3995da08-3e70-4fc4-8f90-5175f54e729f",
       "description": "",
@@ -667,33 +689,75 @@
         }
       ]
     },
-    "Web Group - Agentic Tools Team": {
-      "id": "d95835ad-6f3c-4d6e-916c-32cb4f990de4",
-      "description": "Mirrors web-agentic-tools@evinced.com (GWS)",
+    "Testing Tools A": {
+      "id": "d0157589-1b8f-435f-890a-9c8cafa513c9",
+      "description": "Mirrors testing-tools-2@evinced.com (GWS)",
       "members": [
         {
-          "name": "Ofir Sharon",
-          "account_id": "606c74d2c040cd0069ce0c39"
+          "name": "Asaf Shochet",
+          "account_id": "5e2dad53bd1e480ca327f2e9"
         },
         {
-          "name": "Kfir Orgil",
-          "account_id": "60aa6b51920950006f4d8ad1"
+          "name": "Oded Hutzler",
+          "account_id": "629387d2a0eafd0069e67cb4"
         },
         {
-          "name": "Oren Shlomi",
-          "account_id": "631ed651051efc6985666d30"
+          "name": "Jeny Feldman",
+          "account_id": "630b80518d88ec800fbdc82f"
         },
         {
-          "name": "Kostiantyn Nikolaiev",
-          "account_id": "712020:24aa9932-aa17-46c3-9f5b-a541591a2eca"
+          "name": "Oleksandr Hashkov",
+          "account_id": "712020:2206ea22-aff5-4776-9f73-a7056e20d699"
         },
         {
-          "name": "Ifat Sharifi",
-          "account_id": "712020:76fefc72-a52e-4d61-bedc-fd7047408a0c"
+          "name": "Ergi Dervishaj",
+          "account_id": "712020:24e61afb-13e3-4814-8821-01ec469dd3a0"
         },
         {
-          "name": "Adi Carmel",
-          "account_id": "712020:fbbd8896-2977-47cf-a107-4692283a768e"
+          "name": "Kyrylo Yerin",
+          "account_id": "712020:5f44b128-522a-4adc-aee5-e4a713e850dc"
+        }
+      ]
+    },
+    "Testing Tools B": {
+      "id": "4622a942-aad5-4fff-ab5f-426a9b513b71",
+      "description": "Mirrors testing-tools-b@evinced.com (GWS)",
+      "members": [
+        {
+          "name": "Oded Hutzler",
+          "account_id": "629387d2a0eafd0069e67cb4"
+        },
+        {
+          "name": "Koral Baron",
+          "account_id": "712020:138b51db-9a96-46d6-8221-edc3e92e2ce4"
+        },
+        {
+          "name": "Talia Yavorovski",
+          "account_id": "712020:2d224785-aec6-4812-b85e-5c60a7c23b73"
+        },
+        {
+          "name": "Iuliia Smirnova",
+          "account_id": "712020:8146c1fc-8019-4bcc-beae-4810e739a3a0"
+        },
+        {
+          "name": "Jan Rogalo",
+          "account_id": "712020:90a3f492-781c-42fe-aa5a-f19013ec4062"
+        },
+        {
+          "name": "Roi Buzaglo",
+          "account_id": "712020:ca487f69-fb98-419f-a6f1-91c3676f4f2c"
+        },
+        {
+          "name": "Evghenii Eni",
+          "account_id": "712020:d33a6e30-37b2-4b2b-8c4b-ed03a6df2448"
+        },
+        {
+          "name": "Lukasz Chlebek",
+          "account_id": "712020:da51e86f-ddf1-42b4-9b92-a1a7d6f83b2d"
+        },
+        {
+          "name": "Shir Yakov",
+          "account_id": "712020:eccc394e-8f74-4621-a097-b64352ec99fd"
         }
       ]
     },
@@ -722,7 +786,7 @@
           "account_id": "712020:78b5bf6b-0137-420e-8234-c803cd2d1768"
         },
         {
-          "name": "Daniil Sapa",
+          "name": "Former user",
           "account_id": "712020:7abb3592-d505-448f-ad57-f2f3418010e1"
         },
         {
@@ -765,52 +829,6 @@
         }
       ]
     },
-    "Web-GenAI-Products": {
-      "id": "98ae79c0-4f3a-4828-8a9d-1c7091b7d02d",
-      "description": "",
-      "members": [
-        {
-          "name": "Ben Bracha",
-          "account_id": "5bcc4c22cdfb443b578dc391"
-        },
-        {
-          "name": "Kfir Orgil",
-          "account_id": "60aa6b51920950006f4d8ad1"
-        },
-        {
-          "name": "Oren Shlomi",
-          "account_id": "631ed651051efc6985666d30"
-        },
-        {
-          "name": "Oren Raab",
-          "account_id": "712020:0c420453-2b7e-4d70-a4e8-94a4b512bd23"
-        },
-        {
-          "name": "Rotem Arel",
-          "account_id": "712020:3a521285-66d1-4193-b5da-048c87d1a264"
-        },
-        {
-          "name": "Hagai Jacobson",
-          "account_id": "712020:4b39f4d2-1658-4406-bb41-42ded23ee239"
-        },
-        {
-          "name": "Ema Ilic",
-          "account_id": "712020:9189ca78-92bc-4a0c-8842-4f9200d63c6c"
-        },
-        {
-          "name": "Gil Rolnik",
-          "account_id": "712020:91ec8408-53b9-4a8a-b46f-3a818ff7876a"
-        },
-        {
-          "name": "Anton Borkivskyi",
-          "account_id": "712020:95f369ca-3abd-499e-9dc7-464a573160de"
-        },
-        {
-          "name": "Oleksandr Khodos",
-          "account_id": "712020:b2e56347-5bf0-47f4-b586-d8404c3db0cd"
-        }
-      ]
-    },
     "Web-Group": {
       "id": "85cacc86-b71e-4e93-a59f-162d1cf16b26",
       "description": "",
@@ -844,10 +862,6 @@
         {
           "name": "Ilya Faynberg",
           "account_id": "712020:d8c278d3-afc2-4355-a706-8b8da28db9b7"
-        },
-        {
-          "name": "Narek Chomoyan",
-          "account_id": "712020:e31dc406-ef46-46e2-ad6d-9ddac47aff76"
         },
         {
           "name": "Yevhen Rak",

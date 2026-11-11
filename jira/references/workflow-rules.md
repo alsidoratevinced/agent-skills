@@ -63,7 +63,8 @@ Proceed?
 
 After successfully creating an issue:
 1. Verify the response contains the issue key
-2. If time estimate was specified but not set during creation, update with `jira_update_issue`
+2. If the issue comes back "Unassigned", call `jira_assign_issue` with the assignee's `account_id` (create can silently drop it)
+3. If time estimate was specified but not set during creation, update with `jira_update_issue`
 3. If team field wasn't set during creation, update it separately
 4. Print clickable link: `https://{atlassian_url}/browse/{issue_key}`
 

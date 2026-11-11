@@ -7,7 +7,7 @@ Example interactions showing how the Jira skill behaves.
 **User:** Create a task to update the CI pipeline config
 
 **Skill behavior:**
-1. Reads config.json for defaults (project: MOB, type: Task, team: Mobile Engine Team)
+1. Reads config.json for defaults (project: MOB, type: Task, team: Mobile Auditor Team)
 2. Asks for missing info: description, priority, epic, estimate, classification
 3. Displays confirmation:
    ```
@@ -16,7 +16,7 @@ Example interactions showing how the Jira skill behaves.
    - Type: Task
    - Summary: Update the CI pipeline config
    - Assignee: Unassigned
-   - Team: Mobile Engine Team
+   - Team: Mobile Auditor Team
    - Classification: (asks user)
    - Estimate: None
    Proceed?
@@ -39,8 +39,8 @@ Example interactions showing how the Jira skill behaves.
 **User:** Create a task for oleksandr kholiavko: Implement new API endpoint, 3d estimate, under epic MOB-14735
 
 **Skill behavior:**
-1. Looks up "oleksandr kholiavko" in team-structure.json -> found in Mobile Engine Team
-2. Sets team to Mobile Engine Team UUID automatically
+1. Looks up "oleksandr kholiavko" in team-structure.json -> found in Mobile Auditor Team
+2. Sets team to Mobile Auditor Team UUID automatically
 3. Sets estimate to "3d", epic to "MOB-14735"
 4. Displays full confirmation, creates on approval
 
@@ -99,7 +99,7 @@ Example interactions showing how the Jira skill behaves.
    Batch create 3 tasks under MOB-14735:
 
    1. [Engine] Implement Section508 enum
-      Team: Mobile Engine Team | Assignee: oleksandr kholiavko | Est: 2d
+      Team: Mobile Auditor Team | Assignee: oleksandr kholiavko | Est: 2d
    2. [iOS] Update XCUI scanner
       Team: Mobile iOS Team | Assignee: Anton Yereshchenko | Est: 3d
    3. [Android] Fix Espresso timeout

@@ -59,8 +59,12 @@ This is a dropdown/select field. It is REQUIRED on all issues.
 | Name | ID | When to Use |
 |------|----|-------------|
 | Product Roadmap | 11183 | New features, enhancements, user-facing improvements |
-| Support & Maintenance | 11184 | Bug fixes, hotfixes, customer support, patches |
+| Support | 11184 | Bug fixes, hotfixes, customer support, patches (was "Support & Maintenance" until 2026-11) |
 | Technical Debt & Engineering Health | 11185 | Refactoring, performance, tech debt, infrastructure |
+| Team Initiative | 11290 | Not described in Jira; ask before using |
+| IT Misc | 11393 | Not described in Jira; ask before using |
+
+Option names change in Jira without notice. If creation fails with "Select a valid option for Classification", list the live options with `jira_get_field_options(field_id="customfield_10938")` and update this table and `classification_options` in config.
 
 **Format:**
 ```json
