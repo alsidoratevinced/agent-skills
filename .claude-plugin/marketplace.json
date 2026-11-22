@@ -1,0 +1,32 @@
+{
+  "name": "evinced-agent-skills",
+  "owner": {
+    "name": "Evinced"
+  },
+  "metadata": {
+    "description": "Agent skills for Jira workflow automation, sprint planning and quick fixes"
+  },
+  "plugins": [
+    {
+      "name": "jira",
+      "source": "./",
+      "strict": false,
+      "description": "Manage Jira issues with full workflow support: search, create, update, transition, link and batch operations, with team structure, custom fields and classification.",
+      "skills": ["./jira"]
+    },
+    {
+      "name": "sprint-master",
+      "source": "./",
+      "strict": false,
+      "description": "Sprint lifecycle management for Team Leads: prepare sprints, plan sprints and generate post-sprint KPI reports.",
+      "skills": ["./sprint-master"]
+    },
+    {
+      "name": "quick-fix",
+      "source": "./",
+      "strict": false,
+      "description": "Ticket-first workflow for small changes: resolves the Jira parent, creates the ticket, then branches, implements, verifies and opens the PR.",
+      "skills": ["./quick-fix"]
+    }
+  ]
+}

@@ -10,6 +10,15 @@ Install using the [`skills` CLI](https://github.com/vercel-labs/skills):
 npx skills add evinced/agent-skills
 ```
 
+Or, in Claude Code, install from the plugin marketplace:
+
+```
+/plugin marketplace add alsidoratevinced/agent-skills
+/plugin install jira --marketplace alsidoratevinced/agent-skills
+/plugin install sprint-master --marketplace alsidoratevinced/agent-skills
+/plugin install quick-fix --marketplace alsidoratevinced/agent-skills
+```
+
 Or manually — clone the repo and place skill directories where your agent expects them. For example, in Claude Code:
 
 ```bash
