@@ -20,13 +20,13 @@ the Python 3 standard library.
 The script reads `JIRA_USERNAME` and `JIRA_API_TOKEN` from the environment (`JIRA_URL`
 defaults to the `atlassian_url` you use, e.g. `https://evinced.atlassian.net`).
 
-If they're not already exported, source them from `sprint-master/config.json`, which holds
+If they're not already exported, source them from `kanban-master/config.json`, which holds
 `jira_email` + `jira_api_token` (gitignored, local only):
 
 ```bash
 cd /path/to/agent-skills
-JIRA_USERNAME=$(python3 -c "import json;print(json.load(open('sprint-master/config.json'))['jira_email'])") \
-JIRA_API_TOKEN=$(python3 -c "import json;print(json.load(open('sprint-master/config.json'))['jira_api_token'])") \
+JIRA_USERNAME=$(python3 -c "import json;print(json.load(open('kanban-master/config.json'))['jira_email'])") \
+JIRA_API_TOKEN=$(python3 -c "import json;print(json.load(open('kanban-master/config.json'))['jira_api_token'])") \
 python3 jira/scripts/fetch-teams.py
 ```
 

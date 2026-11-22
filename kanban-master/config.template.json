@@ -1,0 +1,7 @@
+{
+  "atlassian_url": "https://YOUR_ORG.atlassian.net",
+  "board_id": 0,
+  "team_name": "YOUR_TEAM_NAME",
+  "min_todo": 2,
+  "todo_statuses": ["Ready for work", "Reopened"]
+}

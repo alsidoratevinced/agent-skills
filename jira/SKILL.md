@@ -191,7 +191,7 @@ found."** Regenerate it from the live API with `scripts/fetch-teams.py`.
 
 **Short flow** (full procedure in `references/team-sync.md`):
 1. Ensure `JIRA_USERNAME` + `JIRA_API_TOKEN` are exported (they live in
-   `sprint-master/config.json` as `jira_email`/`jira_api_token`). **The user must run this
+   `kanban-master/config.json` as `jira_email`/`jira_api_token`). **The user must run this
    step** — agent reads of credential files are denied by the auto-mode classifier.
 2. Run `python3 jira/scripts/fetch-teams.py` to regenerate `references/team-structure.json`
    (auto-discovers IDs; prints an Added/Removed team diff).

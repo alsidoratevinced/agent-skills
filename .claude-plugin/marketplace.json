@@ -4,7 +4,7 @@
     "name": "Evinced"
   },
   "metadata": {
-    "description": "Agent skills for Jira workflow automation, sprint planning and quick fixes"
+    "description": "Agent skills for Jira workflow automation, Kanban reporting and quick fixes"
   },
   "plugins": [
     {
@@ -15,11 +15,11 @@
       "skills": ["./jira"]
     },
     {
-      "name": "sprint-master",
+      "name": "kanban-master",
       "source": "./",
       "strict": false,
-      "description": "Sprint lifecycle management for Team Leads: prepare sprints, plan sprints and generate post-sprint KPI reports.",
-      "skills": ["./sprint-master"]
+      "description": "Kanban board health and weekly reporting for Team Leads: who is running out of ready work, and what the team finished this week.",
+      "skills": ["./kanban-master"]
     },
     {
       "name": "quick-fix",
