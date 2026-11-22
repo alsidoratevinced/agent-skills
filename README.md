@@ -23,5 +23,8 @@ ln -s /path/to/agent-skills/sprint-master ~/.claude/skills/sprint-master
 ### jira
 Manage Jira issues with full workflow support — search, create, update, transition, link, and batch operations. Includes team structure, custom field mappings, and classification.
 
+### quick-fix
+Ticket-first workflow for small changes — triggered only by `/quick-fix` or the words "quick fix"/"quick task". Discovers project conventions from `AGENTS.md`/`CLAUDE.md`/`CONTRIBUTING.md`/PR templates, resolves the Jira parent (named key → documented default → best match from task and recent history), creates the ticket, then branches, implements, verifies, and opens the PR.
+
 ### sprint-master
 Sprint lifecycle management for Team Leads — prepare sprints (create sprint, support bucket, capacity calc), plan sprints (validate estimates/assignees, team breakdown, suggest goals), and generate post-sprint KPI reports (velocity, planned vs. unplanned, completion rates).
