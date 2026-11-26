@@ -168,7 +168,7 @@ issue type:  Sub-task
 parent:      <parent key>
 summary:     <short imperative summary>
 description: <what and why, plus files/areas touched>
-assignee:    <current Jira user>
+assignee:    accountid:<current user's account id>
 ```
 
 That single create is the whole step — no follow-up field updates are needed.
@@ -179,6 +179,11 @@ That single create is the whole step — no follow-up field updates are needed.
 - Summary prefix: follow the convention visible in sibling Sub-tasks or the docs; absent
   one, keep it plain
 
+**Assignee format:** pass `assignee` as `accountid:<account id>` (get the id from a recent
+issue of the user or the Jira user profile). A raw id or display name is silently dropped
+and the issue is created Unassigned. Check the create response; if it shows Unassigned,
+call `jira_assign_issue(key, "accountid:<id>")` before continuing.
+
 **Task under an Epic:**
 
 ```
@@ -187,7 +192,7 @@ issue type:  Task
 parent:      <epic key>
 summary:     <short imperative summary, with any prefix the project uses on top-level issues>
 description: <what and why, plus files/areas touched>
-assignee:    <current Jira user>
+assignee:    accountid:<current user's account id>
 fields:      Sprint = <active sprint id>
 ```
 

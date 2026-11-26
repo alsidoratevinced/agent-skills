@@ -69,7 +69,7 @@ This is critical for ambiguous names (e.g., "Anton from mobile SDK team" (Anton 
 5. On approval, call `jira_create_issue` with:
    - `project_key` from config
    - `summary`, `issue_type`, `description` from user input
-   - `assignee` (`account_id` from team-structure.json)
+   - `assignee` as `accountid:<account_id>` (id from team-structure.json; the prefix is required)
    - `additional_fields` with team UUID, epic link, classification, time estimate
 6. Verify the assignee on the created issue (see "When assigning a person")
 
@@ -105,9 +105,9 @@ Replace `{team_field_id}`, `{epic_field_id}`, `{classification_field_id}` with t
 
 ### When assigning a person:
 1. Search for the person's name in team-structure.json across all teams
-2. Pass their `account_id` as `assignee`
+2. Pass `accountid:<account_id>` as `assignee` — the `accountid:` prefix is REQUIRED. A raw account id or a display name is silently dropped by `jira_create_issue` and the issue comes back "Unassigned" (verified by test)
 3. But DO use their team's UUID for the team field
-4. `jira_create_issue` can silently drop the assignee (the issue comes back "Unassigned"). After creating, check the assignee; if it's missing, call `jira_assign_issue(issue_key, account_id)`
+4. Still check the assignee in the create response; if it's "Unassigned" anyway, call `jira_assign_issue(issue_key, "accountid:<account_id>")`
 
 ## Issue Updates
 
