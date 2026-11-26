@@ -34,8 +34,24 @@ create under (Step 3), it is not the ticket to work on.
 **Even when triggered, stop and ask instead when:**
 
 - The work spans multiple files/commits or touches shared state, data formats, public
-  interfaces, or migrations → it deserves its own ticket; ask the user
+  interfaces, or migrations → it deserves its own ticket; ask the user — unless the
+  caller supplied an **approved scope** (see below) and the work stays inside it
 - The user only asked a question or asked you to investigate → answer first, no ticket
+
+## Called by Another Skill
+
+Another skill (e.g. `repo-alignment`) may invoke quick-fix on the user's behalf for a
+change the user already approved there. That invocation satisfies the trigger rule. The
+caller may pass two inputs:
+
+- **Working directory** — a path to a prepared `git worktree`. When given, do every git
+  operation there (branch, commit, push) and never `checkout`/`switch` in any other tree —
+  in particular not in the user's own clone the worktree was made from.
+- **Approved scope** — a short description of the change the user approved. When given,
+  the "spans multiple files/commits → ask" guard above does not fire for work inside that
+  scope. Anything beyond it still stops and asks.
+
+Every other step — conventions, parent, ticket, verification, PR — runs unchanged.
 
 ## Workflow
 
@@ -199,6 +215,11 @@ git checkout -b <KEY>-short-summary origin/<base-branch>
 - Check the tree is clean first (`git status --short`); stash unrelated changes rather
   than carrying them onto the new branch
 
+**Caller-supplied working directory:** run all of the above inside it — `cd` there,
+`git fetch origin`, then `git switch -c <KEY>-short-summary origin/<base-branch>`. Skip
+the stash advice; the worktree is clean by construction. Never touch the clone it came
+from.
+
 ### Step 6 — Implement
 
 Make the change. Keep it to the scope agreed in Step 2 — a quick fix that grows into a
@@ -226,6 +247,10 @@ tooling (CLI, MCP server, API), using the project's PR template if there is one:
 - Fill in the summary of work; fill reviewer notes only if there is something non-obvious
 - Check off the relevant checklist items
 
+**Non-GitHub remote** (GitLab, Bitbucket, … — no GitHub tooling applies): push the branch
+and give the user the host's merge/pull request link to open themselves, with the title
+and body you would have used.
+
 Report the PR URL and the Jira key together.
 
 ## Quick Reference
@@ -239,6 +264,8 @@ Report the PR URL and the Jira key together.
 | Sub-task parent        | use that key as-is; create nothing                                 |
 | Branch                 | `<new key>-short-summary` from fresh `origin/<base>`, never the parent's key |
 | PR title               | per CI check/docs, with the new key                                |
+| Caller-supplied worktree | all git work there; never checkout elsewhere                     |
+| Caller-approved scope  | multi-file guard off inside it; anything beyond still asks         |
 
 ## Common Mistakes
 
@@ -263,3 +290,5 @@ Report the PR URL and the Jira key together.
 | Opening the PR before checks pass                        | Step 7 is a gate, not a suggestion                                                  |
 | Claiming verification when no checks were discoverable   | Say none were found                                                                 |
 | Scope creep into a refactor                              | Stop, tell the user, ask for a real ticket                                          |
+| Checking out a branch in the user's own clone when a worktree was supplied | Work only in the supplied worktree                                |
+| Stretching a caller's approved scope                     | Inside it: proceed. Beyond it: stop and ask                                         |
