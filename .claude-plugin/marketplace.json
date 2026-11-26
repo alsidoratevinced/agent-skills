@@ -4,7 +4,7 @@
     "name": "Evinced"
   },
   "metadata": {
-    "description": "Agent skills for Jira workflow automation, Kanban reporting and quick fixes"
+    "description": "Agent skills for Jira workflow automation, Kanban reporting, quick fixes and repo alignment"
   },
   "plugins": [
     {
@@ -27,6 +27,13 @@
       "strict": false,
       "description": "Ticket-first workflow for small changes: resolves the Jira parent, creates the ticket, then branches, implements, verifies and opens the PR.",
       "skills": ["./quick-fix"]
+    },
+    {
+      "name": "repo-alignment",
+      "source": "./",
+      "strict": false,
+      "description": "Compare agent rules, skills, review pipelines and process checks across repos; port what works and drive approved changes through quick-fix.",
+      "skills": ["./repo-alignment"]
     }
   ]
 }

@@ -1,0 +1,7 @@
+{
+  "repos": [
+    "~/path/to/local/checkout",
+    "your-org/repo-name",
+    "git@github.com:your-org/other-repo.git"
+  ]
+}
