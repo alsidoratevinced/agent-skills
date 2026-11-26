@@ -42,11 +42,18 @@ create under (Step 3), it is not the ticket to work on.
 
 Another skill (e.g. `repo-alignment`) may invoke quick-fix on the user's behalf for a
 change the user already approved there. That invocation satisfies the trigger rule. The
-caller may pass two inputs:
+caller may pass these inputs:
 
-- **Working directory** — a path to a prepared `git worktree`. When given, do every git
-  operation there (branch, commit, push) and never `checkout`/`switch` in any other tree —
-  in particular not in the user's own clone the worktree was made from.
+- **Working directory** — a path to a prepared `git worktree`. When given, it *is* the
+  project: read its project docs and run its verification there (Steps 1 and 7), and do
+  every git operation there (branch, commit, push). Never `checkout`/`switch` in any other
+  tree — in particular not in the user's own clone the worktree was made from.
+- **Remote and base branch** — the already-resolved remote (may be `upstream` in a fork
+  clone) and base branch name. When given, use them instead of `origin` and instead of
+  discovering the base branch.
+- **Source** — where the content being ported lives (repo path, ref, file paths). Read it
+  from there with `git -C <source repo> show <ref>:<path>`; adapt it, don't rewrite it from
+  a description.
 - **Approved scope** — a short description of the change the user approved. When given,
   the "spans multiple files/commits → ask" guard above does not fire for work inside that
   scope. Anything beyond it still stops and asks.
@@ -216,7 +223,8 @@ git checkout -b <KEY>-short-summary origin/<base-branch>
   than carrying them onto the new branch
 
 **Caller-supplied working directory:** run all of the above inside it — `cd` there,
-`git fetch origin`, then `git switch -c <KEY>-short-summary origin/<base-branch>`. Skip
+`git fetch <remote>`, then `git switch -c <KEY>-short-summary <remote>/<base-branch>`,
+using the caller's remote and base branch (default `origin` and the Step 1 base). Skip
 the stash advice; the worktree is clean by construction. Never touch the clone it came
 from.
 

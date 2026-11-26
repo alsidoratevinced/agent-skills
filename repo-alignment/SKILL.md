@@ -109,11 +109,15 @@ After go:
   `gh repo clone <org/repo> <tmp> -- --filter=blob:none` for the shorthand,
   `git clone --filter=blob:none <url> <tmp>` for a URL.
 - **Fetch** each repo: `git fetch <remote>`. This only updates remote-tracking refs and
-  tags; the user's branches, working tree and uncommitted changes stay untouched.
+  tags; the user's branches, working tree and uncommitted changes stay untouched. If the
+  fetch fails (offline, no access), say so — the repo would be scanned from stale refs —
+  and ask whether to continue with it or drop it.
 - **Resolve the default branch** — never assume `main`:
   `git remote set-head <remote> --auto` (refreshes a stale `<remote>/HEAD`), then
   `git symbolic-ref --short refs/remotes/<remote>/HEAD` and strip the `<remote>/` prefix;
-  else `gh repo view <org/repo> --json defaultBranchRef`.
+  else `gh repo view <org/repo> --json defaultBranchRef` (GitHub only); else **ask the
+  user**. Then show the default branch per repo (`<remote>/<default>`) in one line each,
+  so a wrong ref is caught before the scan.
 - **Local path with no remote** → it can only be a **source**: inventory its current
   `HEAD` and never make it a target.
 - **Local path or found clone with unmerged work** → if its current branch has commits not
@@ -237,6 +241,9 @@ steps (where in GitHub, what value, who needs to do it).
    This works the same for a local path, a found clone, or a clone made in Step 2.
 2. **Invoke `/quick-fix`** with:
    - **working directory** = that worktree
+   - **remote and base branch** = the target's `<remote>` and `<default>`
+   - **source** = the source repo's path @ `<remote>/<default>` and the files the feature
+     lives in (none for NEW rows)
    - **approved scope** = the row's feature, source → target, the approved items, and its
      "what to adapt" notes
 
@@ -244,7 +251,11 @@ steps (where in GitHub, what value, who needs to do it).
    and opens the PR by the target repo's own conventions.
 3. **Record** the Jira key and the PR link (or, for a non-GitHub remote, the merge-request
    link quick-fix hands back).
-4. **Clean up** once the branch is pushed: `git -C <repo> worktree remove <tmp-dir>`.
+4. **Clean up** the worktree after each row, whether or not quick-fix finished:
+   `git -C <repo> worktree remove <tmp-dir>` once the branch is pushed; if quick-fix
+   stopped with uncommitted work, tell the user the worktree path and ask before
+   `worktree remove --force`. The branch quick-fix created stays in the target clone's
+   local branches — list it in the summary.
 
 **One quick-fix per row.** Never bundle several rows into one ticket or PR. If a row turns
 out bigger than approved, quick-fix stops — relay that to the user and move to the next
@@ -256,7 +267,10 @@ row.
 | - | ---- | ------- | ---- | ------- | ------ |
 
 Status is `opened`, `manual` (settings rows, with the steps), `skipped` (with reason), or
-`failed` (with the error). Remove temp clones made in Step 2.
+`failed` (with the error). Include each local branch quick-fix created per repo.
+
+**Temp clones** made in Step 2 are removed when the run ends — after the summary, or
+right after Step 4 even if nothing is approved.
 
 ## Quick Reference
 
